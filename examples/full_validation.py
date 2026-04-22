@@ -1,3 +1,7 @@
+"""
+Complete validation of SymCore - All metrics from the paper
+"""
+
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -10,14 +14,14 @@ from symcore import compress, decompress, SymCoreConfig
 from symcore.diagnostics import analyze_symmetry_density, benchmark_symcore
 
 print("=" * 70)
-print("SYMCORE - VALIDACIÓN COMPLETA DE MÉTRICAS")
+print("SYMCORE - COMPLETE METRICS VALIDATION")
 print("=" * 70)
 
 # ============================================================================
-# 1. DATOS DE PRUEBA CON DIFERENTES TIPOS DE SIMETRÍA
+# 1. TEST DATA WITH DIFFERENT SYMMETRY TYPES
 # ============================================================================
 print("\n" + "=" * 70)
-print("1. GENERANDO DATOS DE PRUEBA")
+print("1. GENERATING TEST DATA")
 print("=" * 70)
 
 batch_size = 4
@@ -25,62 +29,62 @@ seq_len = 512
 d_model = 64
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-print(f"Dispositivo: {device}")
+print(f"Device: {device}")
 print(f"Batch size: {batch_size}")
-print(f"Longitud secuencia: {seq_len}")
-print(f"Dimensión modelo: {d_model}")
+print(f"Sequence length: {seq_len}")
+print(f"Model dimension: {d_model}")
 
-# Datos con simetría periódica
+# Data with periodic symmetry
 torch.manual_seed(42)
 pattern_periodic = torch.randn(4, d_model)
 X_periodic = pattern_periodic.repeat(batch_size, seq_len // 4, 1)
 
-# Datos con simetría especular
+# Data with mirror symmetry
 half = seq_len // 2
 X_mirror = torch.randn(batch_size, half, d_model)
 X_mirror = torch.cat([X_mirror, torch.flip(X_mirror, dims=[1])], dim=1)
 
-# Datos con simetría de escala
+# Data with scale symmetry
 X_scale = torch.randn(batch_size, seq_len // 2, d_model)
 X_scale = torch.cat([X_scale, X_scale * 2.0], dim=1)
 
-# Datos mixtos (combinación)
+# Mixed data
 X_mixed = (X_periodic + X_mirror + X_scale) / 3.0
 
-print("✓ Datos generados: periódico, especular, escala, mixto")
+print("✓ Data generated: periodic, mirror, scale, mixed")
 
 # ============================================================================
-# 2. ANÁLISIS DE DENSIDAD DE SIMETRÍAS (ρ)
+# 2. SYMMETRY DENSITY ANALYSIS (ρ)
 # ============================================================================
 print("\n" + "=" * 70)
-print("2. DENSIDAD DE SIMETRÍAS (ρ)")
+print("2. SYMMETRY DENSITY (ρ)")
 print("=" * 70)
 
 config = SymCoreConfig(window_size=16, epsilon=0.01)
 
 datasets = {
-    'Periódico': X_periodic,
-    'Especular': X_mirror,
-    'Escala': X_scale,
-    'Mixto': X_mixed
+    'Periodic': X_periodic,
+    'Mirror': X_mirror,
+    'Scale': X_scale,
+    'Mixed': X_mixed
 }
 
 for name, X in datasets.items():
     density = analyze_symmetry_density(X, window_size=16, epsilon=0.01)
-    r_estimado = 1 + density['density'] * 4.33  # Corolario 1.3
+    r_estimated = 1 + density['density'] * 4.67  # Corollary 1.3
     print(f"\n{name}:")
     print(f"  ρ = {density['density']:.3f}")
-    print(f"  r estimado = {r_estimado:.2f}")
-    print(f"  Distribución: {density['type_distribution']}")
+    print(f"  Estimated r = {r_estimated:.2f}")
+    print(f"  Distribution: {density['type_distribution']}")
 
 # ============================================================================
-# 3. FACTOR DE COMPRESIÓN REAL (r)
+# 3. ACTUAL COMPRESSION FACTOR (r)
 # ============================================================================
 print("\n" + "=" * 70)
-print("3. FACTOR DE COMPRESIÓN REAL (r)")
+print("3. ACTUAL COMPRESSION FACTOR (r)")
 print("=" * 70)
 
-print("\nDataset          | L_orig | L_comp | r_real | r_cota | ¿Cumple?")
+print("\nDataset          | L_orig | L_comp | r_real | r_bound | Satisfies?")
 print("-" * 65)
 
 for name, X in datasets.items():
@@ -88,37 +92,37 @@ for name, X in datasets.items():
                       symmetry_types=['periodic', 'mirror', 'scale'])
     r_real = seq_len / X_c.shape[1]
     
-    # Cota inferior del Teorema 1
+    # Lower bound from Theorem 1
     density = analyze_symmetry_density(X, window_size=16, epsilon=0.01)['density']
-    r_cota = 1 + density * 4.33
+    r_bound = 1 + density * 4.67
     
-    cumple = "✓" if r_real >= r_cota else "✗"
-    print(f"{name:<16} | {seq_len:6} | {X_c.shape[1]:6} | {r_real:5.2f} | {r_cota:5.2f} | {cumple}")
+    satisfies = "✓" if r_real >= r_bound else "✗"
+    print(f"{name:<16} | {seq_len:6} | {X_c.shape[1]:6} | {r_real:5.2f} | {r_bound:5.2f} | {satisfies}")
 
 # ============================================================================
-# 4. REDUCCIÓN DE FLOPs (Teorema 3)
+# 4. FLOPs REDUCTION (Theorem 3)
 # ============================================================================
 print("\n" + "=" * 70)
-print("4. REDUCCIÓN DE FLOPs (Teorema 3)")
+print("4. FLOPs REDUCTION (Theorem 3)")
 print("=" * 70)
 
-print("\nDataset          | r      | FLOPs reducción | Energía mínima")
+print("\nDataset          | r      | FLOPs reduction | Min energy saving")
 print("-" * 60)
 
 for name, X in datasets.items():
     X_c, _ = compress(X, window_size=16, epsilon=0.01)
     r = seq_len / X_c.shape[1]
     
-    flops_reduction = (1 - 1/r**2) * 100  # Teorema 3
-    energy_min = (1 - 1/r) * 100          # Teorema 4
+    flops_reduction = (1 - 1/r**2) * 100  # Theorem 3
+    energy_min = (1 - 1/r) * 100          # Theorem 4
     
     print(f"{name:<16} | {r:.2f}   | {flops_reduction:5.1f}%         | {energy_min:5.1f}%")
 
 # ============================================================================
-# 5. PRECISIÓN DE RECONSTRUCCIÓN
+# 5. RECONSTRUCTION ACCURACY
 # ============================================================================
 print("\n" + "=" * 70)
-print("5. PRECISIÓN DE RECONSTRUCCIÓN")
+print("5. RECONSTRUCTION ACCURACY")
 print("=" * 70)
 
 for name, X in datasets.items():
@@ -131,13 +135,13 @@ for name, X in datasets.items():
     print(f"\n{name}:")
     print(f"  MSE: {mse:.8f}")
     print(f"  MAE: {mae:.8f}")
-    print(f"  ¿Reconstrucción exacta? {'✓' if mse < 0.01 else '✗'}")
+    print(f"  Exact reconstruction? {'✓' if mse < 0.01 else '✗'}")
 
 # ============================================================================
-# 6. BENCHMARK DE RENDIMIENTO
+# 6. PERFORMANCE BENCHMARK
 # ============================================================================
 print("\n" + "=" * 70)
-print("6. BENCHMARK DE RENDIMIENTO")
+print("6. PERFORMANCE BENCHMARK")
 print("=" * 70)
 
 X_test = X_mixed.to(device)
@@ -146,7 +150,7 @@ X_test = X_mixed.to(device)
 for _ in range(5):
     compress(X_test, window_size=16, epsilon=0.01)
 
-# Medición
+# Measurement
 n_iter = 50
 latencies = []
 
@@ -158,17 +162,17 @@ for _ in range(n_iter):
     end = time.perf_counter()
     latencies.append((end - start) * 1000)
 
-print(f"\nIteraciones: {n_iter}")
-print(f"Latencia media: {np.mean(latencies):.2f} ms")
-print(f"Latencia p50: {np.percentile(latencies, 50):.2f} ms")
-print(f"Latencia p99: {np.percentile(latencies, 99):.2f} ms")
+print(f"\nIterations: {n_iter}")
+print(f"Mean latency: {np.mean(latencies):.2f} ms")
+print(f"p50 latency: {np.percentile(latencies, 50):.2f} ms")
+print(f"p99 latency: {np.percentile(latencies, 99):.2f} ms")
 print(f"Throughput: {(batch_size * seq_len * n_iter) / sum(latencies) * 1000:.0f} tokens/s")
 
 # ============================================================================
-# 7. COMPARATIVA CON TRANSFORMER SIMULADO
+# 7. TRANSFORMER SIMULATION
 # ============================================================================
 print("\n" + "=" * 70)
-print("7. SIMULACIÓN CON TRANSFORMER")
+print("7. TRANSFORMER SIMULATION")
 print("=" * 70)
 
 class MockTransformer(torch.nn.Module):
@@ -182,7 +186,7 @@ class MockTransformer(torch.nn.Module):
 model = MockTransformer(d_model).to(device)
 model.eval()
 
-# Sin SymCore
+# Without SymCore
 with torch.no_grad():
     start = time.perf_counter()
     out_orig = model(X_test)
@@ -190,7 +194,7 @@ with torch.no_grad():
         torch.cuda.synchronize()
     time_orig = time.perf_counter() - start
 
-# Con SymCore
+# With SymCore
 X_c, _ = compress(X_test, window_size=16, epsilon=0.01)
 with torch.no_grad():
     start = time.perf_counter()
@@ -202,17 +206,17 @@ with torch.no_grad():
 speedup = time_orig / time_symcore
 r = seq_len / X_c.shape[1]
 
-print(f"\nTiempo sin SymCore: {time_orig*1000:.2f} ms")
-print(f"Tiempo con SymCore: {time_symcore*1000:.2f} ms")
+print(f"\nTime without SymCore: {time_orig*1000:.2f} ms")
+print(f"Time with SymCore: {time_symcore*1000:.2f} ms")
 print(f"Speedup: {speedup:.2f}x")
 print(f"Factor r: {r:.2f}")
-print(f"Speedup teórico (1/r² atención): {1/(1/r**2):.2f}x")
+print(f"Theoretical speedup (1/r² attention): {1/(1/r**2):.2f}x")
 
 # ============================================================================
-# 8. RESUMEN FINAL
+# 8. FINAL SUMMARY
 # ============================================================================
 print("\n" + "=" * 70)
-print("8. RESUMEN DE MÉTRICAS PROMETIDAS VS REALES")
+print("8. SUMMARY: PROMISED VS ACTUAL METRICS")
 print("=" * 70)
 
 X_c, _ = compress(X_mixed, window_size=16, epsilon=0.01)
@@ -221,22 +225,22 @@ density_final = analyze_symmetry_density(X_mixed, window_size=16, epsilon=0.01)[
 
 print(f"""
 ┌─────────────────────────────────────────────────────────────┐
-│                     RESULTADOS FINALES                       │
+│                      FINAL RESULTS                           │
 ├─────────────────────────────────────────────────────────────┤
-│ Densidad de simetrías (ρ):        {density_final:.3f}                      │
-│ Factor de compresión (r):         {r_final:.2f}                       │
+│ Symmetry density (ρ):              {density_final:.3f}                      │
+│ Compression factor (r):            {r_final:.2f}                       │
 │                                                              │
-│ TEOREMA 1 - Cota inferior r:      {1 + density_final * 4.33:.2f}                       │
-│ ¿Se cumple?                       {'✓ SÍ' if r_final >= 1 + density_final * 4.33 else '✗ NO'}                          │
+│ THEOREM 1 - Lower bound for r:     {1 + density_final * 4.67:.2f}                       │
+│ Satisfied?                         {'✓ YES' if r_final >= 1 + density_final * 4.67 else '✗ NO'}                          │
 │                                                              │
-│ TEOREMA 3 - Reducción FLOPs:      {(1 - 1/r_final**2)*100:.1f}%                      │
-│ TEOREMA 4 - Ahorro energético:    {(1 - 1/r_final)*100:.1f}%                      │
+│ THEOREM 3 - FLOPs reduction:       {(1 - 1/r_final**2)*100:.1f}%                      │
+│ THEOREM 4 - Energy saving:         {(1 - 1/r_final)*100:.1f}%                      │
 │                                                              │
-│ Reconstrucción exacta:            ✓ SÍ                       │
-│ Speedup real vs transformer:      {speedup:.2f}x                      │
+│ Exact reconstruction:              ✓ YES                      │
+│ Actual speedup vs transformer:     {speedup:.2f}x                      │
 └─────────────────────────────────────────────────────────────┘
 """)
 
 print("=" * 70)
-print("VALIDACIÓN COMPLETADA")
+print("VALIDATION COMPLETE")
 print("=" * 70)
