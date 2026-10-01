@@ -17,3 +17,7 @@ def get_divisors(n: int) -> List[int]:
 def validate_input(X: torch.Tensor) -> None:
     if X.dim() != 3:
         raise ValueError(f"Input must be 3D (batch, seq_len, d_model), got shape {X.shape}")
+    if not torch.is_floating_point(X):
+        raise ValueError("Input must use a floating dtype")
+    if not torch.isfinite(X).all():
+        raise ValueError("Input must contain only finite values")
