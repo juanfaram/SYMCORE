@@ -1,32 +1,74 @@
-name: omega-polybench-iteration3
+name: omega-polybench-iteration3-sanitized
 on:
   workflow_dispatch:
   push:
     branches: [omega/bootstrap-cost-corpus]
+
 jobs:
   benchmark:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compiler versions
-        run: |
-          gcc --version | head -1
-          clang --version | head -1
-      - name: Run PolyBench MINI with GCC and Clang
+
+      - name: Record environment
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          for K in 2mm atax bicg; do
-            for CC in gcc clang; do
-              OUT="artifacts/${K}_${CC}.txt"
-              BIN="/tmp/${K}_${CC}"
-              $CC -O3 -march=native -DMINI_DATASET -DPOLYBENCH_TIME                 -I benchmarks/polybench                 benchmarks/polybench/polybench.c benchmarks/polybench/${K}.c                 -lm -o "$BIN"
-              : > "$OUT"
-              for i in 1 2 3 4 5 6 7 8 9 10 11; do "$BIN" >> "$OUT"; done
-            done
-          done
+          lscpu > artifacts/lscpu.txt
+          uname -a > artifacts/uname.txt
+          gcc --version > artifacts/gcc-version.txt
+          clang --version > artifacts/clang-version.txt
+          printf '%s\n' '-O3 -march=native -DPOLYBENCH_TIME' > artifacts/flags.txt
+
+      - name: Benchmark and auto-escalate noisy MINI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, statistics, subprocess
+          root=pathlib.Path("artifacts")
+          kernels=["2mm","atax","bicg"]
+          compilers=["gcc","clang"]
+          all_rows=[]
+          for k in kernels:
+            for cc in compilers:
+              chosen=None
+              for dataset in ["MINI_DATASET","SMALL_DATASET"]:
+                binp=f"/tmp/{k}_{cc}_{dataset}"
+                cmd=[cc,"-O3","-march=native",f"-D{dataset}","-DPOLYBENCH_TIME",
+                     "-I","benchmarks/polybench","benchmarks/polybench/polybench.c",
+                     f"benchmarks/polybench/{k}.c","-lm","-o",binp]
+                subprocess.run(cmd,check=True)
+                vals=[]
+                for _ in range(11):
+                  p=subprocess.run([binp],check=True,capture_output=True,text=True)
+                  vals.append(float(p.stdout.strip()))
+                med=statistics.median(vals)
+                mad=statistics.median(abs(x-med) for x in vals)
+                ratio=(mad/med) if med else None
+                row={"kernel":k,"compiler":cc,"dataset":dataset,"repetitions":11,
+                     "samples_seconds":vals,"median_seconds":med,"MAD_seconds":mad,
+                     "MAD_over_median":ratio,"compile_command":" ".join(cmd)}
+                all_rows.append(row)
+                if ratio is not None and ratio <= 0.05:
+                  chosen=row; break
+              if chosen is None:
+                chosen=all_rows[-1]
+                chosen["conclusive"]=False
+              else:
+                chosen["conclusive"]=True
+              (root/f"{k}_{cc}_chosen.json").write_text(json.dumps(chosen,indent=2))
+          (root/"all_measurements.json").write_text(json.dumps(all_rows,indent=2))
+          PY
+
+      - name: Record provenance
+        shell: bash
+        run: |
+          git rev-parse HEAD > artifacts/repo-head.txt
+          cat benchmarks/polybench/PROVENANCE.json > artifacts/source-provenance.json
+
       - uses: actions/upload-artifact@v4
         with:
-          name: omega-polybench-raw
+          name: omega-polybench-sanitized
           path: artifacts/
