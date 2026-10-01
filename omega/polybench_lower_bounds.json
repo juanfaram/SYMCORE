@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "cases": {
+    "2mm": {
+      "lower_bound": {
+        "work": "Omega(NI*NJ*NK + NI*NL*NJ)",
+        "reason": "Under the classical dense formulation and arbitrary dense inputs, all multiplicative contributions can affect live-out D."
+      },
+      "candidate_class": "Theta(NI*NJ*NK + NI*NL*NJ)",
+      "gap_class": "Theta(1)",
+      "status": "CLASS_OPTIMAL_WITHIN_CLASSICAL_DENSE_FORMULATION",
+      "caveat": "Not a universal matrix-multiplication lower bound; fast matrix multiplication changes the algorithmic model."
+    },
+    "atax": {
+      "lower_bound": {
+        "work": "Omega(M*N)",
+        "reason": "For arbitrary dense A and x, every matrix entry can affect A*x and A^T*(A*x)."
+      },
+      "candidate_class": "Theta(M*N)",
+      "gap_class": "Theta(1)",
+      "status": "CLASS_OPTIMAL_FOR_DENSE_INPUT_ACCESS_MODEL",
+      "caveat": "Input-reading/output model bound, not a calibrated time bound."
+    },
+    "bicg": {
+      "lower_bound": {
+        "work": "Omega(N*M)",
+        "reason": "For arbitrary dense A,p,r, every A[i][j] can affect q[i] and s[j]."
+      },
+      "candidate_class": "Theta(N*M)",
+      "gap_class": "Theta(1)",
+      "status": "CLASS_OPTIMAL_FOR_DENSE_INPUT_ACCESS_MODEL",
+      "caveat": "Input-reading/output model bound, not a calibrated time bound."
+    }
+  },
+  "numeric_time_gap": "UNKNOWN"
+}

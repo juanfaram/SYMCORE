@@ -1,0 +1,7 @@
+{
+  "reduction_sum": {"domain":"list[int]","observables":["return","exception"],"representation":"semantic/reduction"},
+  "map_filter_fusion": {"domain":"list[int]","observables":["return","exception"],"representation":"semantic/map-filter"},
+  "repeated_membership": {"domain":"list[int], list[int]","observables":["return","exception"],"representation":"algorithmic/membership"},
+  "prefix_sum": {"domain":"list[int]","observables":["return","exception"],"representation":"semantic/scan"},
+  "repeated_subproblem": {"domain":"int >= 0","observables":["return","exception"],"representation":"algorithmic/recurrence"}
+}

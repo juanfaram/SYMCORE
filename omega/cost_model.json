@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "primary": {"metric": "latency_p50_ns", "direction": "minimize"},
+  "secondary": [
+    {"metric": "peak_memory_bytes", "direction": "minimize"},
+    {"metric": "source_bytes", "direction": "minimize"}
+  ],
+  "evidence_required": ["median", "MAD", "repetitions", "input_scale", "environment"],
+  "rule": "Primary metric decides unless candidates are statistically indistinguishable under declared noise; secondary metrics break ties without hiding regressions."
+}

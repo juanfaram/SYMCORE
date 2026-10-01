@@ -1,0 +1,18 @@
+{
+  "suite": "PolyBench/C 4.2.1 beta",
+  "upstream_repository": "EEESlab/PolyBenchC-4.2.1-OpenMP",
+  "upstream_ref": "master",
+  "kernels": [
+    "2mm",
+    "atax",
+    "bicg"
+  ],
+  "dataset": "MINI_DATASET",
+  "compilers": [
+    "gcc -O3 -march=native",
+    "clang -O3 -march=native"
+  ],
+  "repetitions": 11,
+  "evidence": "[E] upstream source provenance; [M] when workflow artifact is collected",
+  "caveat": "GitHub Actions hardware is shared/virtualized; results establish reproducibility and compiler-relative position on that runner, not universal hardware performance."
+}
