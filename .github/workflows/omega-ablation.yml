@@ -1,0 +1,32 @@
+name: omega-ablation
+on:
+  push:
+    branches: ["omega/symcore/v0.2-deep"]
+    paths:
+      - "benchmarks/ablation_step02.py"
+      - ".github/workflows/omega-ablation.yml"
+  workflow_dispatch:
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          pip install numpy
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run Omega vs naive ablation
+        run: python benchmarks/ablation_step02.py | tee omega-ablation.json
+      - name: Persist raw evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omega-step02-ablation
+          path: omega-ablation.json
+          if-no-files-found: error
