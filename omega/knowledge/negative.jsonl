@@ -1,0 +1,1 @@
+{"knowledge_id":"SC-KN001","type":"benchmark_validity","finding":"forward-only comparison is not end-to-end SYMCORE speedup because compression cost is excluded","source":"examples/full_validation.py"}
