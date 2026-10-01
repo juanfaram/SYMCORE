@@ -1,0 +1,35 @@
+schema_version: 1
+omega_version: "0.1-lab"
+subject: "SYMCORE compress/decompress"
+contract:
+  inputs:
+    X: "torch.Tensor[batch, sequence, d_model], floating dtype"
+    window_size: "integer in [4,256]"
+    epsilon: "float in [0,1]"
+    symmetry_types: ["periodic","mirror","scale"]
+  observables:
+    - compressed_tensor
+    - position_map
+    - reconstructed_tensor
+    - compression_ratio
+  correctness:
+    epsilon_zero: "round-trip must be bitwise/equal for exact supported symmetries"
+    epsilon_positive: "round-trip error must remain within a declared bound; bound not yet proven"
+    padding: "padding outside represented sequence is not semantic output"
+  determinism: "required for fixed input/device/runtime unless PyTorch backend itself is nondeterministic"
+  assumptions:
+    - "finite floating-point inputs for numerical error claims"
+    - "window_size divides synthetic exact-symmetry fixtures where the fixture requires it"
+  objectives:
+    primary: "end-to-end latency"
+    secondary: ["compression_ratio","peak_memory"]
+  regression:
+    correctness: "no regression allowed"
+    performance: "candidate must not be declared winner without robust measurement"
+evidence_policy:
+  statuses: ["PROVED","SUPPORTED","NON-CONCLUSIVE","REFUTED","UNKNOWN"]
+  levels: ["E0","E1","E2","E3","E4","E5","E6"]
+dataset_policy:
+  dev: "synthetic fixtures used during implementation"
+  validation: "held-out synthetic seeds/shapes"
+  blind: "reserved; must not be used to tune this OmegaVersion"
