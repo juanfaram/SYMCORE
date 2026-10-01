@@ -1,0 +1,19 @@
+schema_version: 1
+dev:
+  purpose: tuning
+  seeds: [42,101,102,103,104]
+  regimes: [exact_periodic, exact_mirror, exact_scale, random]
+validation:
+  purpose: architecture decisions only
+  seeds: [1101,1102,1103,1104]
+  shapes:
+    - [1,128,32]
+    - [2,256,64]
+    - [4,512,64]
+  regimes: [different_periods, different_scales, near_symmetry, random]
+blind:
+  purpose: frozen evaluation; never tune omega_version 0.1-lab on these cases
+  seeds: [91001,91003,91009]
+  disclosure: "fixtures generated only at blind evaluation time"
+policy:
+  contamination: "blind outcomes require a new OmegaVersion before they may influence search"
