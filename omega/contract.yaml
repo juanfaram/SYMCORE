@@ -13,8 +13,9 @@ contract:
     - reconstructed_tensor
     - compression_ratio
   correctness:
-    epsilon_zero: "round-trip must be bitwise/equal for exact supported symmetries"
-    epsilon_positive: "round-trip error must remain within a declared bound; bound not yet proven"
+    exact_symmetry: "for exact supported symmetries use a strictly positive detection tolerance; test must prove both detection/compression and exact round-trip"
+    epsilon_zero: "detector currently treats epsilon=0 as disabling equality matches because rejection uses norm >= epsilon; no exact-detection claim is made at epsilon=0"
+    epsilon_positive: "for approximate symmetries, round-trip error must remain within a declared bound; bound not yet proven"
     padding: "padding outside represented sequence is not semantic output"
   determinism: "required for fixed input/device/runtime unless PyTorch backend itself is nondeterministic"
   assumptions:
