@@ -1,0 +1,23 @@
+name: omega-policy-gate
+on:
+  push:
+    branches: ["omega/symcore/v0.2-deep"]
+    paths:
+      - "symcore/policy.py"
+      - "tests/test_policy.py"
+      - ".github/workflows/omega-policy-gate.yml"
+  workflow_dispatch:
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: pip install pytest
+      - name: Necessity Guard tests
+        run: pytest -q tests/test_policy.py
