@@ -1,0 +1,36 @@
+omega_version: "0.2-deep"
+mode: "deep"
+time_is_primary_constraint: false
+budgets:
+  search_hours: 48
+  verification_hours: 12
+  benchmark_hours: 6
+policy:
+  hierarchy:
+    - contract
+    - necessity
+    - reformulation
+    - representation
+    - algorithm
+    - data_structure
+    - fusion_cache_batch
+    - parallel_vector_hardware
+    - compiler_ir
+    - algebra
+    - micro
+  rule: "No large lower-level budget while a reasonable higher-level hypothesis remains live."
+scheduler:
+  objective_terms: [pareto_gain, information_gain, bound_tightening, transfer_value, risk_reduction]
+  cost_weight: low_but_nonzero
+  exploration:
+    minimum_live_deep_hypotheses: 3
+    preserve_negative_results: true
+gates:
+  correctness_before_performance: true
+  measurement_before_winner: true
+  validation_before_blind: true
+  hostile_baseline_required: true
+  stop_certificate_required: true
+blind:
+  frozen: true
+  consume_only_after_version_freeze: true
