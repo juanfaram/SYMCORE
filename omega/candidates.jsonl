@@ -1,4 +1,4 @@
 {"candidate_id":"SC-BASE","parent":null,"status":"PLANNED","family":"baseline","hypothesis":"establish valid end-to-end baseline"}
-{"candidate_id":"SC-A","parent":"SC-BASE","status":"BLOCKED_ON_S0","family":"structural/vectorization","hypothesis":"vectorize mirror/periodic detection without semantic change"}
-{"candidate_id":"SC-B","parent":"SC-BASE","status":"BLOCKED_ON_S0","family":"hardware/runtime","hypothesis":"remove scale-detection host synchronizations caused by repeated scalar extraction"}
-{"candidate_id":"SC-AB","parent":"SC-BASE","status":"BLOCKED_ON_S0","family":"ablation","hypothesis":"measure interaction of A and B"}
+{"candidate_id":"SC-A","parent":"SC-BASE","status":"READY_FOR_VERIFY_AFTER_ADVERSARIAL_GATE","family":"structural/vectorization","hypothesis":"vectorize mirror/periodic detection without semantic change"}
+{"candidate_id":"SC-B","parent":"SC-BASE","status":"READY_FOR_VERIFY_AFTER_ADVERSARIAL_GATE","family":"hardware/runtime","hypothesis":"remove scale-detection host synchronizations caused by repeated scalar extraction"}
+{"candidate_id":"SC-AB","parent":"SC-BASE","status":"READY_FOR_VERIFY_AFTER_ADVERSARIAL_GATE","family":"ablation","hypothesis":"measure interaction of A and B"}
