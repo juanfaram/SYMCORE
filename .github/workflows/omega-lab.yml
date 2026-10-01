@@ -40,6 +40,9 @@ jobs:
       - name: Crossover benchmark
         if: success()
         run: python benchmarks/crossover.py | tee omega-crossover.json
+      - name: Validation regimes
+        if: success()
+        run: python benchmarks/validation_regimes.py | tee omega-validation.json
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -51,4 +54,5 @@ jobs:
             omega-benchmark.json
             omega-regimes.json
             omega-crossover.json
+            omega-validation.json
           if-no-files-found: ignore
