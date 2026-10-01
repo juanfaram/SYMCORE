@@ -1,0 +1,32 @@
+name: omega-polybench-iteration3
+on:
+  workflow_dispatch:
+  push:
+    branches: [omega/bootstrap-cost-corpus]
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compiler versions
+        run: |
+          gcc --version | head -1
+          clang --version | head -1
+      - name: Run PolyBench MINI with GCC and Clang
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          for K in 2mm atax bicg; do
+            for CC in gcc clang; do
+              OUT="artifacts/${K}_${CC}.txt"
+              BIN="/tmp/${K}_${CC}"
+              $CC -O3 -march=native -DMINI_DATASET -DPOLYBENCH_TIME                 -I benchmarks/polybench                 benchmarks/polybench/polybench.c benchmarks/polybench/${K}.c                 -lm -o "$BIN"
+              : > "$OUT"
+              for i in 1 2 3 4 5 6 7 8 9 10 11; do "$BIN" >> "$OUT"; done
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: omega-polybench-raw
+          path: artifacts/
