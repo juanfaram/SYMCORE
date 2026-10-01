@@ -1,0 +1,33 @@
+name: omega-reformulation-3b
+on:
+  push:
+    branches: ["omega/reformulation-calibration-3b"]
+    paths:
+      - "omega/reformulation/**"
+      - "tests/test_reformulation_membership.py"
+      - "benchmarks/reformulation_membership.py"
+      - ".github/workflows/omega-reformulation-3b.yml"
+  workflow_dispatch:
+jobs:
+  reformulation:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install pytest
+      - name: Verify equivalence
+        run: pytest -q tests/test_reformulation_membership.py | tee omega-3b-tests.log
+      - name: Benchmark reformulation
+        run: python benchmarks/reformulation_membership.py | tee omega-3b-benchmark.json
+      - name: Persist evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omega-step03b
+          path: |
+            omega-3b-tests.log
+            omega-3b-benchmark.json
+          if-no-files-found: error
