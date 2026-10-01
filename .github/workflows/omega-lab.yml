@@ -8,6 +8,8 @@ jobs:
   contract-and-benchmark:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -15,10 +17,17 @@ jobs:
           python-version: "3.11"
       - run: pip install -r requirements.txt pytest
       - name: Contract tests
-        run: pytest -q tests/test_contract.py
+        id: contract
+        run: pytest -q tests/test_contract.py | tee omega-contract.log
       - name: End-to-end benchmark
+        if: success()
         run: python benchmarks/omega_end_to_end.py | tee omega-benchmark.json
-      - uses: actions/upload-artifact@v4
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: omega-benchmark
-          path: omega-benchmark.json
+          name: omega-evidence
+          path: |
+            omega-contract.log
+            omega-benchmark.json
+          if-no-files-found: ignore
