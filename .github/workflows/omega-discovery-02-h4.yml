@@ -1,0 +1,40 @@
+name: omega-discovery-02-h4
+on:
+  push:
+    branches: ["omega/discovery-02-cpython-anext"]
+    paths:
+      - "omega/discovery02/h4_fastpath.patch"
+      - ".github/workflows/omega-discovery-02-h4.yml"
+  workflow_dispatch:
+jobs:
+  h4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: {path: omega}
+      - run: |
+          git clone --filter=blob:none https://github.com/python/cpython.git cpython
+          cd cpython
+          git checkout 0a6c1ed34118b091230ee38fc047bcc2df8e5c5e
+      - name: Apply H4 candidate
+        working-directory: cpython
+        run: git apply ../omega/omega/discovery02/h4_fastpath.patch
+      - name: Build
+        working-directory: cpython
+        run: |
+          ./configure --with-pydebug=no
+          make -j2
+      - name: L1 semantic tests
+        run: ./cpython/python -m test test_asyncgen test_builtin -j1 | tee h4-tests.log
+      - name: L2 benchmark
+        run: ./cpython/python omega/benchmarks/cpython_anext.py | tee h4-benchmark.json
+      - name: Persist
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: d2-h4
+          path: |
+            h4-tests.log
+            h4-benchmark.json
+          if-no-files-found: warn
