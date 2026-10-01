@@ -1,0 +1,11 @@
+version: "0.2-deep"
+status: PENDING
+requirements:
+  real_domains: {target: 5, current: 1}
+  active_families: {target: 4, current: 3}
+  hostile_oracles: {target: 3, current: 1}
+  candidates_evaluated: {target: 50, current: 3}
+  omega_ablation: {required: true, current: false}
+  blind_evaluation: {required: true, current: false}
+  speedup_vs_state_of_art: {required: true, current: false}
+rule: "No world-leading claim while status != PASS."
