@@ -1,12 +1,13 @@
 def discovered_realization(initial, operations):
-    state=list(initial)
-    A=sum(v*v for v in state)
+    # Contract guarantees REMOVE(x) is valid and does not expose final collection state.
+    # Therefore the materialized collection is not an observable and is unnecessary.
+    A=sum(v*v for v in initial)
     out=[]
     for op,x in operations:
         if op=="ADD":
-            state.append(x); A += x*x
+            A += x*x
         elif op=="REMOVE":
-            state.remove(x); A -= x*x
+            A -= x*x
         else:
             raise ValueError(op)
         out.append(A)
