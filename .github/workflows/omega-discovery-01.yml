@@ -1,0 +1,36 @@
+name: omega-discovery-01
+on:
+  push:
+    branches: ["omega/discovery-01-stateful"]
+    paths:
+      - "omega/discovery01/**"
+      - "tests/test_discovery01.py"
+      - "benchmarks/discovery01.py"
+      - ".github/workflows/omega-discovery-01.yml"
+  workflow_dispatch:
+jobs:
+  discovery:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install pytest
+      - name: Search
+        run: python omega/discovery01/search.py | tee discovery-search.json
+      - name: Verify
+        run: pytest -q tests/test_discovery01.py | tee discovery-tests.log
+      - name: Benchmark validation
+        run: python benchmarks/discovery01.py | tee discovery-validation.json
+      - name: Persist evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omega-discovery-01
+          path: |
+            discovery-search.json
+            discovery-tests.log
+            discovery-validation.json
+          if-no-files-found: error
