@@ -34,6 +34,15 @@ jobs:
       - name: End-to-end benchmark
         if: success()
         run: python benchmarks/omega_end_to_end.py | tee omega-benchmark.json
+      - name: Regime discovery benchmark
+        if: success()
+        run: python benchmarks/regime_benchmark.py | tee omega-regimes.json
+      - name: Crossover benchmark
+        if: success()
+        run: python benchmarks/crossover.py | tee omega-crossover.json
+      - name: Validation regimes
+        if: success()
+        run: python benchmarks/validation_regimes.py | tee omega-validation.json
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,4 +52,7 @@ jobs:
             omega-contract.log
             omega-profile.txt
             omega-benchmark.json
+            omega-regimes.json
+            omega-crossover.json
+            omega-validation.json
           if-no-files-found: ignore
