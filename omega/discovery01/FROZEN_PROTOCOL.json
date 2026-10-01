@@ -1,0 +1,19 @@
+{
+  "discovery_id":"Discovery-01",
+  "frozen_before_search":true,
+  "baseline_hostile":"best oracle candidate produced before search; if no oracle changes algorithmic class, use optimized recompute implementation",
+  "oracles":[
+    {"name":"cpython","role":"language/runtime optimizer","visibility_to_search":false},
+    {"name":"specialist_catalog","role":"frozen catalog intentionally excludes state-maintenance rules","visibility_to_search":false},
+    {"name":"compiler_oracle","role":"no source-level algorithm rewrite available for Python contract","visibility_to_search":false}
+  ],
+  "datasets":{
+    "dev":{"seed":4101,"sizes":[128,512]},
+    "validation":{"seeds":[4201,4202,4203],"sizes":[1024,4096,8192]},
+    "blind":{"seeds":[49001,49003],"sealed":true}
+  },
+  "semantic_destruction":{
+    "operators":["drop_recompute","factor_delta","introduce_summary","invert_update","cache_observable","partition_state","normalize_operation","derive_recurrence","change_representation","hoist_invariant","batch_updates","specialize_operation"],
+    "budget":"12 operators x 1 proposal each; no exhaustive search"
+  }
+}
