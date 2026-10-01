@@ -37,6 +37,9 @@ jobs:
       - name: Regime discovery benchmark
         if: success()
         run: python benchmarks/regime_benchmark.py | tee omega-regimes.json
+      - name: Crossover benchmark
+        if: success()
+        run: python benchmarks/crossover.py | tee omega-crossover.json
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -47,4 +50,5 @@ jobs:
             omega-profile.txt
             omega-benchmark.json
             omega-regimes.json
+            omega-crossover.json
           if-no-files-found: ignore
