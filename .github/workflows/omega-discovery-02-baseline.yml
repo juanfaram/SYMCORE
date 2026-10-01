@@ -1,0 +1,49 @@
+name: omega-discovery-02-baseline
+on:
+  push:
+    branches: ["omega/discovery-02-cpython-anext"]
+    paths:
+      - "benchmarks/cpython_anext.py"
+      - ".github/workflows/omega-discovery-02-baseline.yml"
+  workflow_dispatch:
+jobs:
+  baseline:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: parent
+            sha: 8df6f077115484361b40952751fb7d703843c192
+          - label: affected
+            sha: 0a6c1ed34118b091230ee38fc047bcc2df8e5c5e
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: omega
+      - name: Checkout CPython exact SHA
+        run: |
+          git clone --filter=blob:none https://github.com/python/cpython.git cpython
+          cd cpython
+          git checkout ${{ matrix.sha }}
+      - name: Build CPython
+        working-directory: cpython
+        run: |
+          ./configure --with-pydebug=no
+          make -j2
+      - name: Run frozen benchmark
+        run: |
+          ./cpython/python omega/benchmarks/cpython_anext.py | tee d2-${{ matrix.label }}.json
+      - name: Run relevant upstream tests
+        run: |
+          ./cpython/python -m test test_asyncgen test_builtin -j1 | tee tests-${{ matrix.label }}.log
+      - name: Persist evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: d2-${{ matrix.label }}-${{ matrix.sha }}
+          path: |
+            d2-${{ matrix.label }}.json
+            tests-${{ matrix.label }}.log
+          if-no-files-found: warn
