@@ -1,4 +1,4 @@
 {"candidate_id":"SC-BASE","parent":null,"status":"PLANNED","family":"baseline","hypothesis":"establish valid end-to-end baseline"}
-{"candidate_id":"SC-A","parent":"SC-BASE","status":"READY_FOR_VERIFY_AFTER_ADVERSARIAL_GATE","family":"structural/vectorization","hypothesis":"vectorize mirror/periodic detection without semantic change"}
-{"candidate_id":"SC-B","parent":"SC-BASE","status":"READY_FOR_VERIFY_AFTER_ADVERSARIAL_GATE","family":"hardware/runtime","hypothesis":"remove scale-detection host synchronizations caused by repeated scalar extraction"}
-{"candidate_id":"SC-AB","parent":"SC-BASE","status":"READY_FOR_VERIFY_AFTER_ADVERSARIAL_GATE","family":"ablation","hypothesis":"measure interaction of A and B"}
+{"candidate_id":"SC-A","parent":"SC-BASE","status":"VERIFIED_E2","family":"structural/vectorization","hypothesis":"vectorize mirror/periodic detection without semantic change","evidence":{"tests":"17/17","profile_mean_ns":105070717.6,"e2e_p50_ns":361719049.5}}
+{"candidate_id":"SC-B","parent":"SC-BASE","status":"VERIFIED_E2","family":"hardware/runtime","hypothesis":"remove scale-detection host synchronizations caused by repeated scalar extraction","evidence":{"tests":"17/17","profile_mean_ns":93957375,"e2e_p50_ns":340340324}}
+{"candidate_id":"SC-AB","parent":"SC-BASE","status":"VALIDATED_E3_SCOPED","family":"ablation","hypothesis":"measure interaction of A and B","evidence":{"tests":"17/17","profile_mean_ns":34104060,"validation":"held-out seeds 1101-1104; periodic synthetic CPU"}}
