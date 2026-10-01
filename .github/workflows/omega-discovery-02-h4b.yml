@@ -1,0 +1,39 @@
+name: omega-discovery-02-h4b
+on:
+  push:
+    branches: ["omega/discovery-02-cpython-anext"]
+    paths:
+      - "omega/discovery02/apply_h4b.py"
+      - ".github/workflows/omega-discovery-02-h4b.yml"
+  workflow_dispatch:
+jobs:
+  h4b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: {path: omega}
+      - run: |
+          git clone --filter=blob:none https://github.com/python/cpython.git cpython
+          cd cpython
+          git checkout 0a6c1ed34118b091230ee38fc047bcc2df8e5c5e
+      - name: Apply T4b
+        working-directory: cpython
+        run: python3 ../omega/omega/discovery02/apply_h4b.py
+      - name: Build
+        working-directory: cpython
+        run: |
+          ./configure --with-pydebug=no
+          make -j2
+      - name: L1 tests
+        run: ./cpython/python -m test test_asyncgen test_builtin -j1 | tee h4b-tests.log
+      - name: L2 benchmark
+        run: ./cpython/python omega/benchmarks/cpython_anext.py | tee h4b-benchmark.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: d2-h4b
+          path: |
+            h4b-tests.log
+            h4b-benchmark.json
+          if-no-files-found: warn
