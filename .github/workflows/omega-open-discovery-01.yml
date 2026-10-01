@@ -1,0 +1,39 @@
+name: omega-open-discovery-01
+on:
+  push:
+    branches: ["omega/open-discovery-01-sort17"]
+    paths:
+      - "omega/open_discovery01/**"
+      - "tests/test_open_discovery01.py"
+      - ".github/workflows/omega-open-discovery-01.yml"
+  workflow_dispatch:
+jobs:
+  search:
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [17001,17002,17003,17004]
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      OMEGA_SEED: ${{ matrix.seed }}
+      OMEGA_SECONDS: "2700"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install pytest
+      - name: Verify frozen incumbent
+        run: pytest -q tests/test_open_discovery01.py
+      - name: Search algorithm space
+        run: python omega/open_discovery01/search.py | tee search-${{ matrix.seed }}.jsonl
+      - name: Persist shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sort17-${{ matrix.seed }}
+          path: |
+            search-${{ matrix.seed }}.jsonl
+            FOUND_70_*.json
+          if-no-files-found: ignore
