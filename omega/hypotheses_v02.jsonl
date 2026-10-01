@@ -1,0 +1,5 @@
+{"id":"H-N1","family":"necessity","priority":"critical","statement":"A cheap preflight can bypass SymCore when expected compression cannot amortize preprocessing","status":"LIVE"}
+{"id":"H-R1","family":"reformulation","priority":"high","statement":"Batch windows before general symmetry detection to reduce repeated dispatch","status":"LIVE"}
+{"id":"H-A1","family":"algorithm","priority":"high","statement":"Periodic detection can use batched shift equality/correlation","status":"LIVE"}
+{"id":"H-S1","family":"structural","priority":"high","statement":"Batching windows can remove per-window Python dispatch","status":"LIVE"}
+{"id":"H-C1","family":"compiler","priority":"medium","statement":"torch.compile may reduce remaining dispatch overhead","status":"LIVE"}
