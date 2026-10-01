@@ -1,0 +1,24 @@
+name: omega-lab
+on:
+  push:
+    branches: ["omega/**"]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  contract-and-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt pytest
+      - name: Contract tests
+        run: pytest -q tests/test_contract.py
+      - name: End-to-end benchmark
+        run: python benchmarks/omega_end_to_end.py | tee omega-benchmark.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: omega-benchmark
+          path: omega-benchmark.json
