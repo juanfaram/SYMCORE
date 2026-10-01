@@ -13,12 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+        with: {python-version: "3.11"}
       - run: pip install -r requirements.txt pytest
-      - name: Contract tests
-        id: contract
-        run: pytest -q tests/test_contract.py | tee omega-contract.log
+      - name: Contract and adversarial tests
+        run: pytest -q tests/test_contract.py tests/test_adversarial.py | tee omega-contract.log
+      - name: Causal profile
+        if: success()
+        run: python benchmarks/profile_detection.py | tee omega-profile.txt
       - name: End-to-end benchmark
         if: success()
         run: python benchmarks/omega_end_to_end.py | tee omega-benchmark.json
@@ -29,5 +30,6 @@ jobs:
           name: omega-evidence
           path: |
             omega-contract.log
+            omega-profile.txt
             omega-benchmark.json
           if-no-files-found: ignore
