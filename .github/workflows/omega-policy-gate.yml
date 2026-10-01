@@ -20,7 +20,7 @@ jobs:
           cache: "pip"
       - name: Install policy-test dependencies
         run: |
-          pip install pytest
+          pip install numpy pytest
           pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Necessity Guard tests
         run: pytest -q tests/test_policy.py
