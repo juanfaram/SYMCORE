@@ -1,0 +1,3 @@
+{"knowledge_id":"SC-KP001","type":"causal_profile","finding":"detect_symmetry accounted for ~0.814s of ~0.841s profiled compress time in S0 workload; optimization should target detection first","evidence_level":"E2"}
+{"knowledge_id":"SC-KP002","type":"candidate","finding":"SC-AB reduced profiled compress mean from ~168.3ms to ~34.1ms on the profiling fixture while passing 17/17 contract/adversarial tests","evidence_level":"E2"}
+{"knowledge_id":"SC-KP003","type":"regime","finding":"On held-out validation seeds for periodic synthetic inputs, SC-AB has stable positive end-to-end regimes: L1536 r8 median 1.362x; L1536 r4 1.077x; L2048 r8 2.076x; L2048 r4 1.607x; L2048 r2 1.133x","evidence_level":"E3","scope":"GitHub Actions CPU, MockTransformer, B1 D64, periodic synthetic"}
