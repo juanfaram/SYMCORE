@@ -1,0 +1,97 @@
+{
+  "version": "1.0",
+  "rule": "Never convert an asymptotic lower bound into a numeric time-optimality ratio without a calibrated constant/unit.",
+  "cases": {
+    "reduction_sum": {
+      "lower_bound": {
+        "work": "Omega(N)",
+        "reason": "Exact sum can depend on every input element."
+      },
+      "candidate": {
+        "work": "Theta(N)",
+        "implementation": "sum(xs)"
+      },
+      "complexity_gap": {
+        "class_ratio": "Theta(1)",
+        "status": "CLASS_OPTIMAL"
+      },
+      "time_gap": {
+        "value": null,
+        "status": "UNKNOWN"
+      }
+    },
+    "map_filter_fusion": {
+      "lower_bound": {
+        "work": "Omega(N)",
+        "reason": "Exact output can depend on every input element."
+      },
+      "candidate": {
+        "work": "Theta(N)",
+        "implementation": "single fused comprehension"
+      },
+      "complexity_gap": {
+        "class_ratio": "Theta(1)",
+        "status": "CLASS_OPTIMAL"
+      },
+      "time_gap": {
+        "value": null,
+        "status": "UNKNOWN"
+      }
+    },
+    "repeated_membership": {
+      "lower_bound": {
+        "work": "Omega(N + Q)",
+        "reason": "Exact structure construction inspects N inputs and Q answers must be produced."
+      },
+      "candidate": {
+        "work": "expected Theta(N + Q)",
+        "implementation": "set(xs) + Q hash lookups",
+        "assumption": "expected O(1) hash operations"
+      },
+      "complexity_gap": {
+        "class_ratio": "expected Theta(1)",
+        "status": "EXPECTED_CLASS_OPTIMAL"
+      },
+      "time_gap": {
+        "value": null,
+        "status": "UNKNOWN"
+      }
+    },
+    "prefix_sum": {
+      "lower_bound": {
+        "work": "Omega(N)",
+        "reason": "Contract returns N prefix values; output size alone is Omega(N)."
+      },
+      "candidate": {
+        "work": "Theta(N)",
+        "implementation": "itertools.accumulate"
+      },
+      "complexity_gap": {
+        "class_ratio": "Theta(1)",
+        "status": "CLASS_OPTIMAL"
+      },
+      "time_gap": {
+        "value": null,
+        "status": "UNKNOWN"
+      }
+    },
+    "repeated_subproblem": {
+      "lower_bound": {
+        "work": "Omega(1)",
+        "reason": "Trivial operation-count bound; stronger bit-complexity bounds need another cost model."
+      },
+      "candidate": {
+        "work": "Theta(N) loop iterations",
+        "implementation": "iterative recurrence"
+      },
+      "complexity_gap": {
+        "class_ratio": "O(N) against trivial bound",
+        "status": "NOT_CERTIFIED_CLASS_OPTIMAL"
+      },
+      "time_gap": {
+        "value": null,
+        "status": "UNKNOWN"
+      }
+    }
+  }
+}
