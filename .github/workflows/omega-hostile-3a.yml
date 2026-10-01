@@ -1,0 +1,33 @@
+name: omega-hostile-3a
+on:
+  push:
+    branches: ["omega/symcore/v0.2-deep"]
+    paths:
+      - "benchmarks/hostile_step03a.py"
+      - ".github/workflows/omega-hostile-3a.yml"
+  workflow_dispatch:
+jobs:
+  hostile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install CPU benchmark dependencies
+        run: |
+          pip install numpy
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run hostile baseline
+        run: python benchmarks/hostile_step03a.py | tee omega-hostile-3a.json
+      - name: Persist raw evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omega-hostile-3a
+          path: omega-hostile-3a.json
+          if-no-files-found: error
