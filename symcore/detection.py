@@ -31,20 +31,15 @@ def detect_symmetry(window: torch.Tensor, epsilon: float,
 
     if 'scale' in symmetry_types and k % 2 == 0:
         half = k // 2
-        alpha_estimates = []
-        for m in range(half):
-            norm_a = compute_norm(window[m], norm_type)
-            if norm_a > epsilon:
-                norm_b = compute_norm(window[half+m], norm_type)
-                alpha_estimates.append((norm_b / norm_a).item())
-        if alpha_estimates:
-            alpha = torch.tensor(alpha_estimates).median().item()
-            is_scale = True
-            for m in range(half):
-                if compute_norm(window[half+m] - alpha * window[m], norm_type) >= epsilon:
-                    is_scale = False
-                    break
-            if is_scale:
-                return 'scale', {'factor': alpha}
+        first = window[:half]
+        second = window[half:]
+        norm_a = _row_norms(first, norm_type)
+        valid = norm_a > epsilon
+        if bool(torch.any(valid)):
+            norm_b = _row_norms(second, norm_type)
+            alpha_t = torch.median(norm_b[valid] / norm_a[valid])
+            residual = _row_norms(second - alpha_t * first, norm_type)
+            if bool(torch.all(residual < epsilon)):
+                return 'scale', {'factor': alpha_t.item()}
 
     return None, {}
