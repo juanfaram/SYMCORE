@@ -1,1 +1,4 @@
 {"knowledge_id":"SC-KN001","type":"benchmark_validity","finding":"forward-only comparison is not end-to-end SYMCORE speedup because compression cost is excluded","source":"examples/full_validation.py"}
+{"knowledge_id":"SC-KN002","type":"contract_test","finding":"epsilon=0 does not detect even exact equality under current detector because rejection uses norm >= epsilon; trivial round-trip tests can therefore be false-green","evidence_level":"E2"}
+{"knowledge_id":"SC-KN003","type":"regime","finding":"Compression is economically harmful when structure is absent/weak: random r1 and global-mirror r~1.03 are ~0.012x end-to-end on the tested small regime","evidence_level":"E2"}
+{"knowledge_id":"SC-KN004","type":"regime","finding":"At L1536 with periodic r2, SC-AB remains slower across all four validation seeds (median ~0.795x)","evidence_level":"E3","scope":"CPU MockTransformer B1 D64 synthetic periodic"}
