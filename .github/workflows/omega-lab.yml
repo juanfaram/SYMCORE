@@ -2,6 +2,12 @@ name: omega-lab
 on:
   push:
     branches: ["omega/**"]
+    paths:
+      - "symcore/**"
+      - "tests/**"
+      - "benchmarks/**"
+      - "requirements.txt"
+      - ".github/workflows/omega-lab.yml"
   pull_request:
   workflow_dispatch:
 jobs:
