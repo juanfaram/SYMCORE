@@ -1,0 +1,47 @@
+diff --git a/Python/bltinmodule.c b/Python/bltinmodule.c
+index 0000000..0000000 100644
+--- a/Python/bltinmodule.c
++++ b/Python/bltinmodule.c
+@@
++/* Omega D2 H4 candidate: C fast path for one-argument anext().
++   The two-argument/default form remains the Python implementation. */
++static PyObject *
++omega_anext_fast(PyObject *module, PyObject *arg)
++{
++    PyTypeObject *t = Py_TYPE(arg);
++    if (t->tp_as_async == NULL || t->tp_as_async->am_anext == NULL) {
++        PyErr_Format(PyExc_TypeError,
++                     "'%.200s' object is not an async iterator",
++                     t->tp_name);
++        return NULL;
++    }
++    return (*t->tp_as_async->am_anext)(arg);
++}
++
++static PyMethodDef omega_anext_fast_def = {
++    "anext", omega_anext_fast, METH_O,
++    "Return the next item from the async iterator."
++};
+@@
+ int
+ _PyBuiltin_InitPythonFunctions(PyObject *dict)
+ {
+@@
+     for (Py_ssize_t i = 0; i < n; i++) {
+@@
+         if (r < 0) {
+             goto done;
+         }
+     }
++    /* Replace only the hot one-argument entry point with direct slot dispatch.
++       The experiment's semantic tests decide whether this representation is valid. */
++    PyObject *fast = PyCFunction_New(&omega_anext_fast_def, NULL);
++    if (fast == NULL) {
++        goto done;
++    }
++    if (PyDict_SetItemString(dict, "anext", fast) < 0) {
++        Py_DECREF(fast);
++        goto done;
++    }
++    Py_DECREF(fast);
+     rc = 0;
