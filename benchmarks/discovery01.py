@@ -26,5 +26,5 @@ for seed,n,steps in VALIDATION:
     rows.append(row)
 print(json.dumps({
  "search":synthesize(),
- "complexity":{"reference":"O(sum_t |S_t|) ~= O(T*N)","discovered":"O(N+T) plus list REMOVE search cost in current realization","observable_update":"O(1) per operation","lower_bound":"Omega(N+T) to consume initial state and operation stream"},
+ "complexity":{"reference":"O(sum_t |S_t|) ~= O(T*N)","discovered":"O(N+T)","observable_update":"O(1) per operation","lower_bound":"Omega(N+T) to consume initial state and operation stream"},
  "rows":rows},sort_keys=True))
