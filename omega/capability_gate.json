@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "status": "PENDING",
+  "pass_if": [
+    "Omega >= 2x LLVM -O3 on at least one standard benchmark",
+    "Omega >= 20% over state of the art on at least three standard fragments",
+    "Omega finds at least one valid transformation not found by the compared state-of-the-art optimizer"
+  ],
+  "fail_if": "Declared evaluation budget is exhausted and none of the PASS conditions is met.",
+  "pending_if": "Evaluation budget has not yet been exhausted.",
+  "budget": {
+    "standard_benchmarks": 3,
+    "oracle_runs": 1,
+    "note": "Initial gate budget; revise only by explicit versioned decision."
+  }
+}
