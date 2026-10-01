@@ -19,8 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.11"}
-      - run: pip install -r requirements.txt pytest
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install CPU lab dependencies
+        run: |
+          pip install numpy pytest
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Contract and adversarial tests
         run: pytest -q tests/test_contract.py tests/test_adversarial.py | tee omega-contract.log
       - name: Causal profile
