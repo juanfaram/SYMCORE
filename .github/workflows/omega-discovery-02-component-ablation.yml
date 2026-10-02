@@ -1,0 +1,28 @@
+name: omega-discovery-02-component-ablation
+on:
+  push:
+    branches: ["omega/discovery-02-cpython-anext"]
+    paths:
+      - "benchmarks/cpython_anext_component_ablation.py"
+      - ".github/workflows/omega-discovery-02-component-ablation.yml"
+  workflow_dispatch:
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: {path: omega}
+      - run: |
+          git clone --filter=blob:none https://github.com/python/cpython.git cpython
+          cd cpython
+          git checkout 0a6c1ed34118b091230ee38fc047bcc2df8e5c5e
+      - working-directory: cpython
+        run: |
+          ./configure --with-pydebug=no
+          make -j2
+      - run: ./cpython/python omega/benchmarks/cpython_anext_component_ablation.py | tee component-ablation.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: d2-component-ablation
+          path: component-ablation.json
