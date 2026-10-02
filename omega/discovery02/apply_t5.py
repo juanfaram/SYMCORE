@@ -2,6 +2,7 @@ from pathlib import Path
 p=Path("Lib/_pybuiltins.py")
 s=p.read_text()
 s=s.replace("__all__ = ['anext']", "__all__ = []")
+s=s.replace("for _name in __all__:\n    globals()[_name].__module__ = 'builtins'\ndel _name", "# T5: no public Python builtin copied from this module")
 start=s.index("def anext(async_iterator, default=_NOT_GIVEN, /):")
 end=s.index("\n\nasync def _anext_with_default", start)
 replacement='''def _anext_default_entry(async_iterator, default, /):
