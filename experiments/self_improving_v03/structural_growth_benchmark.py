@@ -11,9 +11,9 @@ def run(seed=1401):
  # Phase 1: observe a genuinely uncovered context
  ctx={"task":"solve","domain":"novel-X","difficulty":"hard"}
  for _ in range(80):det.observe(ctx,{"general":rng.uniform(.25,.5)})
- gaps=det.gaps();spec=CapabilityFactory().propose(gaps[0],registry)
+ gaps=det.gaps();spec=CapabilityFactory().propose(gaps[0],registry,success_action="deep")
  # Phase 2: instantiate bounded specialist and learn causally
- m=SkillMemory(actions);correct=[];target="deep";exploration=spec.exploration
+ m=SkillMemory(actions);correct=[];target=spec.success_action;exploration=spec.exploration
  for i in range(600):
   a=rng.choice(actions) if rng.random()<exploration else m.choose(ctx);ok=a==target;m.feedback(a,ctx,1 if ok else -.3);correct.append(ok)
  before=sum(correct[:100])/100;after=sum(correct[-100:])/100
