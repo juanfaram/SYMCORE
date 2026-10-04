@@ -1,9 +1,13 @@
 name: self-improving-engine
 on:
   pull_request:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
   workflow_dispatch:
+
 jobs:
-  test-and-run:
+  evaluate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -11,21 +15,36 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pytest
-      - run: python -m compileall -q .\n        working-directory: experiments/self_improving_v03\n      - run: pytest -q
+      - name: Static compile gate
+        run: python -m compileall -q .
         working-directory: experiments/self_improving_v03
-      - run: python evaluate.py
+      - name: Unit and regression tests
+        run: pytest -q
         working-directory: experiments/self_improving_v03
-      - run: python benchmark_specialists.py
+      - name: Evolution benchmark
+        run: python evaluate.py
         working-directory: experiments/self_improving_v03
-      - run: python interaction_learner.py
+      - name: Specialist benchmark
+        run: python benchmark_specialists.py
         working-directory: experiments/self_improving_v03
-      - run: python stress_interactions.py
+      - name: Interaction learning
+        run: python interaction_learner.py
         working-directory: experiments/self_improving_v03
-      - run: python benchmark_mixture.py
+      - name: Distribution-shift stress
+        run: python stress_interactions.py
         working-directory: experiments/self_improving_v03
-      - run: python curriculum.py
+      - name: Mixture benchmark
+        run: python benchmark_mixture.py
         working-directory: experiments/self_improving_v03
-      - run: python progress_gate.py\n        working-directory: experiments/self_improving_v03\n      - uses: actions/upload-artifact@v5
+      - name: Continual-learning curriculum
+        run: python curriculum.py
+        working-directory: experiments/self_improving_v03
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v5
         with:
-          name: evolution-v05
+          name: evolution-evidence
           path: experiments/self_improving_v03/artifacts/
+      - name: Hard progress gate
+        run: python progress_gate.py
+        working-directory: experiments/self_improving_v03
