@@ -85,6 +85,9 @@ jobs:
       - name: Directional transfer matrix
         run: python pairwise_transfer.py
         working-directory: experiments/self_improving_v03
+      - name: Diagnose zero learning acceleration
+        run: python L_causal_diagnosis.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
