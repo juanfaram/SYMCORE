@@ -55,6 +55,9 @@ jobs:
       - name: Skill resurrection and compositional OOD
         run: python resurrection_benchmark.py
         working-directory: experiments/self_improving_v03
+      - name: Forward transfer benchmark
+        run: python transfer_benchmark.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
