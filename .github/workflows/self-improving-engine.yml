@@ -49,6 +49,12 @@ jobs:
       - name: Multi-seed capability frontier tournament
         run: python frontier_tournament.py
         working-directory: experiments/self_improving_v03
+      - name: Guarded specialist routing
+        run: python benchmark_guarded_router.py
+        working-directory: experiments/self_improving_v03
+      - name: Skill resurrection and compositional OOD
+        run: python resurrection_benchmark.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
