@@ -18,8 +18,7 @@ class EvolutionMemory:
         total=sum(self.stats[f"{context}:{o}"]["n"] for o in OPS)+1
         unseen=[o for o in OPS if self.stats[f"{context}:{o}"]["n"]==0]
         if unseen:return self.rng.choice(unseen)
-        return max(OPS,key=lambda o:self.stats[f"{context}:{o}"]["reward"]/self.stats[f"{context}:{o}"]["n"]+
-                   math.sqrt(2*math.log(total)/self.stats[f"{context}:{o}"]["n"]))
+        return max(OPS,key=lambda o:(self.stats[f"{context}:{o}"]["reward"]/self.stats[f"{context}:{o}"]["n"]) +\n                   math.sqrt(2*math.log(total)/self.stats[f"{context}:{o}"]["n"]))
     def record(self,context,op,reward):
         s=self.stats[f"{context}:{op}"];s["n"]+=1;s["reward"]+=max(-1.,min(1.,reward))
     def save(self):
