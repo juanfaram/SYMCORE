@@ -70,6 +70,15 @@ jobs:
       - name: Structural N-to-N-plus-1 growth
         run: python structural_growth_benchmark.py
         working-directory: experiments/self_improving_v03
+      - name: Permutation falsification of L(t)
+        run: python L_permutation_test.py
+        working-directory: experiments/self_improving_v03
+      - name: Inflation falsification of G(t)
+        run: python G_inflation_test.py
+        working-directory: experiments/self_improving_v03
+      - name: Independent ledger verification
+        run: python standalone_ledger_verify.py artifacts/capability_ledger.jsonl
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
