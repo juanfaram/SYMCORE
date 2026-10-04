@@ -79,6 +79,9 @@ jobs:
       - name: Independent ledger verification
         run: python standalone_ledger_verify.py artifacts/capability_ledger.jsonl
         working-directory: experiments/self_improving_v03
+      - name: Directional transfer matrix
+        run: python pairwise_transfer.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
