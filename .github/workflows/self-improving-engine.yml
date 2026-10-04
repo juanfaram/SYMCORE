@@ -6,16 +6,21 @@ jobs:
   test-and-run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - run: pip install pytest
       - run: pytest -q
         working-directory: experiments/self_improving_v03
-      - run: python main.py
+      - run: python evaluate.py
         working-directory: experiments/self_improving_v03
-      - uses: actions/upload-artifact@v4
+      - run: python interaction_learner.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
         with:
-          name: evolution-v03
-          path: experiments/self_improving_v03/artifacts/evolution.json
+          name: evolution-v04
+          path: |
+            experiments/self_improving_v03/artifacts/evolution.json
+            experiments/self_improving_v03/artifacts/baseline_report.json
+            experiments/self_improving_v03/artifacts/interaction_report.json
