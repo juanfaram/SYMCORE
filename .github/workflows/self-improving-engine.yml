@@ -15,12 +15,13 @@ jobs:
         working-directory: experiments/self_improving_v03
       - run: python evaluate.py
         working-directory: experiments/self_improving_v03
+      - run: python benchmark_specialists.py
+        working-directory: experiments/self_improving_v03
       - run: python interaction_learner.py
+        working-directory: experiments/self_improving_v03
+      - run: python stress_interactions.py
         working-directory: experiments/self_improving_v03
       - uses: actions/upload-artifact@v5
         with:
-          name: evolution-v04
-          path: |
-            experiments/self_improving_v03/artifacts/evolution.json
-            experiments/self_improving_v03/artifacts/baseline_report.json
-            experiments/self_improving_v03/artifacts/interaction_report.json
+          name: evolution-v05
+          path: experiments/self_improving_v03/artifacts/
