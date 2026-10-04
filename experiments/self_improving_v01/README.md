@@ -1,33 +1,42 @@
-# SYMCORE — self-improving experiment v0.1
+# SYMCORE — evolutionary online learner v0.2
 
-Primer experimento real: aprendizaje online sobre demanda horaria de bicicletas.
+Experimento real de aprendizaje continuo y evolución automática sobre demanda horaria de bicicletas.
 
-## Qué hace
+## Ciclo
 
-- Descarga automáticamente el dataset público **UCI Bike Sharing** (17.379 horas).
-- Procesa las observaciones estrictamente en orden: **predecir -> medir error -> aprender**.
-- Entrena cinco candidatos simultáneos con estructuras/tasas de aprendizaje distintas.
-- Cada 500 observaciones compara el MAE de la ventana reciente.
-- Si otro candidato es mejor, cambia automáticamente de campeón.
-- Guarda la historia de evolución y ranking final en `evolution.json`.
+1. Descarga UCI Bike Sharing (17.379 observaciones horarias).
+2. Para cada hora: predice antes de aprender.
+3. Mide el error y actualiza los modelos online.
+4. El campeón genera tres mutaciones periódicamente o cuando se detecta drift.
+5. Los hijos heredan pesos del campeón y mutan learning rate, regularización L2 y estructura de features.
+6. La población queda acotada: campeón + mejores rivales + descendientes.
+7. Un rival solo reemplaza al campeón si mejora al menos un 2% su MAE reciente.
+8. Toda mutación/promoción queda registrada en `evolution.json`.
 
-No modifica su propio código todavía. La auto-mejora de v0.1 es selección adaptativa de estructura/configuración sobre datos no vistos.
+La v0.2 ya **genera configuraciones que no estaban enumeradas de antemano**. Sigue manteniendo límites explícitos: no reescribe código arbitrario.
 
 ## Ejecutar
 
 ```bash
-python3 experiments/self_improving_v01/main.py
+cd experiments/self_improving_v01
+python3 main.py
+```
+
+Opcional:
+
+```bash
+python3 main.py --interval 250 --seed 42
 ```
 
 Solo requiere Python 3.10+ y la librería estándar.
 
-## Fuente de datos
+## Fuente
 
-UCI Bike Sharing Dataset, copia pública:
+UCI Bike Sharing Dataset (copia pública):
 https://github.com/KeithJLZ/UCI-Bike-Sharing-Dataset
 
-Objetivo: predecir `cnt`, el número total de alquileres de la hora.
+Objetivo: predecir `cnt` (alquileres totales por hora) sin mirar datos futuros.
 
-## Próximo crecimiento
+## Próximo salto
 
-v0.2: generar candidatos nuevos a partir del campeón, detección explícita de drift y promoción con guardas estadísticas.
+v0.3: validación estadística challenger/champion, mutación de conjuntos de features más granular, checkpoints persistentes y evaluación walk-forward reproducible contra baselines.
