@@ -19,10 +19,7 @@ class EvolutionMemory:
                 self.stats[k]=v
 
     def choose(self,context):
-        total=sum(self.stats[f"{context}:{o}"]["n"] for o in OPS)+1
-        unseen=[o for o in OPS if self.stats[f"{context}:{o}"]["n"]==0]
-        if unseen:
-            return self.rng.choice(unseen)
+        total=sum(self.stats[f"{context}:{o}"]["n"] for o in OPS)+1\n        unseen=[o for o in OPS if self.stats[f"{context}:{o}"]["n"]==0]\n        # Explore unknown operators first; after every operator has evidence, exploit\n        # when one mean reward is decisively superior, otherwise use UCB.\n        if unseen:\n            return self.rng.choice(unseen)\n        means={o:self.stats[f"{context}:{o}"]["reward"]/self.stats[f"{context}:{o}"]["n"] for o in OPS}\n        best=max(means,key=means.get)\n        ordered=sorted(means.values(),reverse=True)\n        if ordered[0]-ordered[1] >= 0.5 and self.stats[f"{context}:{best}"]["n"] >= 8:\n            return best
         def ucb(op):
             s=self.stats[f"{context}:{op}"]
             mean=s["reward"]/s["n"]
