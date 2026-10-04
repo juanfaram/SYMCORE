@@ -21,6 +21,10 @@ jobs:
         working-directory: experiments/self_improving_v03
       - run: python stress_interactions.py
         working-directory: experiments/self_improving_v03
+      - run: python benchmark_mixture.py
+        working-directory: experiments/self_improving_v03
+      - run: python curriculum.py
+        working-directory: experiments/self_improving_v03
       - uses: actions/upload-artifact@v5
         with:
           name: evolution-v05
