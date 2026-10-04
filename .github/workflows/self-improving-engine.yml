@@ -46,6 +46,9 @@ jobs:
       - name: Out-of-distribution arena
         run: python ood_arena.py
         working-directory: experiments/self_improving_v03
+      - name: Multi-seed capability frontier tournament
+        run: python frontier_tournament.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
