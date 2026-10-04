@@ -43,6 +43,9 @@ jobs:
       - name: Adversarial 20k interaction arena
         run: python adversarial_arena.py
         working-directory: experiments/self_improving_v03
+      - name: Out-of-distribution arena
+        run: python ood_arena.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
