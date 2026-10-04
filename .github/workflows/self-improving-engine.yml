@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pytest
-      - run: pytest -q
+      - run: python -m compileall -q .\n        working-directory: experiments/self_improving_v03\n      - run: pytest -q
         working-directory: experiments/self_improving_v03
       - run: python evaluate.py
         working-directory: experiments/self_improving_v03
