@@ -25,7 +25,7 @@ jobs:
         working-directory: experiments/self_improving_v03
       - run: python curriculum.py
         working-directory: experiments/self_improving_v03
-      - uses: actions/upload-artifact@v5
+      - run: python progress_gate.py\n        working-directory: experiments/self_improving_v03\n      - uses: actions/upload-artifact@v5
         with:
           name: evolution-v05
           path: experiments/self_improving_v03/artifacts/
