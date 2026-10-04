@@ -58,6 +58,12 @@ jobs:
       - name: Forward transfer benchmark
         run: python transfer_benchmark.py
         working-directory: experiments/self_improving_v03
+      - name: Multi-seed meta-transfer
+        run: python meta_transfer_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Residual seasonal specialist
+        run: python benchmark_residual.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
