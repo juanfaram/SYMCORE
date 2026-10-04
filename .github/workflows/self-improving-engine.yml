@@ -39,7 +39,7 @@ jobs:
       - name: Continual-learning curriculum
         run: python curriculum.py
         working-directory: experiments/self_improving_v03
-      - name: Upload evidence
+      - name: Adversarial 20k-interaction arena\n        run: python adversarial_arena.py\n        working-directory: experiments/self_improving_v03\n      - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
         with:
