@@ -6,8 +6,8 @@ def load(n):return json.loads((Path("artifacts")/n).read_text())
 def main():
     failures=[]
     b=load("baseline_report.json");s=load("specialist_report.json");m=load("mixture_report.json")
-    st=load("stress_report.json");cu=load("curriculum_report.json")
-    best_ref=min(b["persistence_mae"],b["same_hour_mae"],*s.values())
+    st=load("stress_report.json");cu=load("curriculum_report.json");fr=load("frontier_report.json")
+    if not fr.get("passed") or not fr.get("accepted_frontier"):\n        failures.append("capability frontier tournament produced no validated survivor")\n    if len(fr.get("seeds",[]))<5:\n        failures.append("capability frontier evidence requires at least 5 seeds")\n    best_ref=min(b["persistence_mae"],b["same_hour_mae"],*s.values())
     if m["mixture_mae_last512"]>best_ref*1.05:
         failures.append(f"mixture MAE {m['mixture_mae_last512']} is >5% worse than best causal reference {best_ref}")
     if st["post_adaptation_accuracy"]<.80:
