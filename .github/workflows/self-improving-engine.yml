@@ -61,6 +61,9 @@ jobs:
       - name: Multi-seed meta-transfer
         run: python meta_transfer_benchmark.py
         working-directory: experiments/self_improving_v03
+      - name: Cumulative transfer X plus Y to Z
+        run: python cumulative_transfer_benchmark.py
+        working-directory: experiments/self_improving_v03
       - name: Residual seasonal specialist
         run: python benchmark_residual.py
         working-directory: experiments/self_improving_v03
