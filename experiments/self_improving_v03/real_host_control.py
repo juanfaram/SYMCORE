@@ -28,7 +28,7 @@ def stats(a,b):
 def run():
  path=Path("data/hour.csv");ensure(path)
  baseline=Host(("hr",));online=Host(("hr","workingday"));sym=SymcoreHost();selective=SymcoreHost();ctl=InterventionController()
- eb=[];eo=[];es=[];ex=[];windows=[];drift_flags=[];recent=[];active_count=0
+ eb=[];eo=[];es=[];ex=[];windows=[];drift_flags=[];active_flags=[];recent=[];active_count=0
  with path.open() as f:
   for i,r in enumerate(csv.DictReader(f),1):
    y=float(r["cnt"])
@@ -36,7 +36,7 @@ def run():
    active=ctl.decide()
    be=baseline.step(r,y);oe=online.step(r,y);se=sym.step(r,y)
    xe=selective.step(r,y) if active else oe
-   eb.append(be);eo.append(oe);es.append(se);ex.append(xe);active_count+=int(active)
+   eb.append(be);eo.append(oe);es.append(se);ex.append(xe);active_flags.append(active);active_count+=int(active)
    ctl.observe(oe)
    # Drift label is computed from online-control error only, before using SYMCORE advantage.
    hist=recent[-256:];mu=statistics.fmean(hist) if hist else oe;sd=statistics.stdev(hist) if len(hist)>1 else 0.
@@ -45,10 +45,18 @@ def run():
     windows.append({"at":i,"vs_baseline":stats(eb[-1024:],es[-1024:]),"vs_online":stats(eo[-1024:],es[-1024:])})
  drift_idx=[i for i,x in enumerate(drift_flags) if x];stable_idx=[i for i,x in enumerate(drift_flags) if not x]
  def subset(ix):return stats([eo[i] for i in ix],[es[i] for i in ix]) if len(ix)>1 else None
+ active_idx=[i for i,x in enumerate(active_flags) if x];inactive_idx=[i for i,x in enumerate(active_flags) if not x]
+ drift_active=sum(active_flags[i] for i in drift_idx);stable_active=sum(active_flags[i] for i in stable_idx)
+ discrimination={"active_rate_drift":round(drift_active/max(1,len(drift_idx)),4),
+                 "active_rate_stable":round(stable_active/max(1,len(stable_idx)),4),
+                 "precision_for_drift":round(drift_active/max(1,len(active_idx)),4),
+                 "recall_of_drift":round(drift_active/max(1,len(drift_idx)),4),
+                 "motor_advantage_when_active":subset(active_idx),
+                 "motor_advantage_when_inactive":subset(inactive_idx)}
  out={"dataset":"UCI Bike Sharing hour.csv","rows":len(eb),"paired":True,
       "drift_conditioned":{"drift_n":len(drift_idx),"stable_n":len(stable_idx),"drift":subset(drift_idx),"stable":subset(stable_idx)},
       "vs_baseline":stats(eb[-2048:],es[-2048:]),"vs_online_control":stats(eo[-2048:],es[-2048:]),
-      "selective_intervention":{"active_fraction":round(active_count/len(eo),4),"vs_online":stats(eo[-2048:],ex[-2048:]),"vs_always_on":stats(es[-2048:],ex[-2048:])},
+      "selective_intervention":{"active_fraction":round(active_count/len(eo),4),"vs_online":stats(eo[-2048:],ex[-2048:]),"vs_always_on":stats(es[-2048:],ex[-2048:]),"discrimination":discrimination},
       "positive_A_vs_online_fraction":round(sum(w["vs_online"]["A"]>0 for w in windows)/len(windows),4),
       "windows":windows}
  Path("artifacts/real_host_control_report.json").write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2));return out
