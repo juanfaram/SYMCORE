@@ -1,7 +1,8 @@
 name: pi-growth-evidence
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches: [experiment/self-improving-v0.1]
     paths:
       - "experiments/self_improving_v03/operator_policy.py"
       - "experiments/self_improving_v03/pi_growth_benchmark.py"
