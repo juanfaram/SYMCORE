@@ -1,0 +1,28 @@
+name: risk-envelope
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/coarse_risk_attribution.py"
+      - "experiments/self_improving_v03/risk_guard_benchmark.py"
+      - "experiments/self_improving_v03/risk_contract.py"
+      - ".github/workflows/risk-envelope.yml"
+jobs:
+  risk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Attribute risk coarsely
+        run: python experiment_runner.py risk-attribution python coarse_risk_attribution.py
+        working-directory: experiments/self_improving_v03
+      - name: Test evidence-derived guard on holdout
+        run: python experiment_runner.py risk-guard python risk_guard_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: risk-envelope-evidence
+          path: experiments/self_improving_v03/artifacts/
