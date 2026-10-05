@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with: {python-version: "3.11"}
-      - name: Compile
+      - name: Policy invariants\n        run: python -m pytest -q test_learned_evolution_pi.py\n        working-directory: experiments/self_improving_v03\n      - name: Compile
         run: python -m compileall -q bidirectional_choice_benchmark.py
         working-directory: experiments/self_improving_v03
       - name: Frozen Pi four-state exam
