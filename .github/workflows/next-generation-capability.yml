@@ -1,0 +1,31 @@
+name: next-generation-capability
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/second_stream_replication.py"
+      - "experiments/self_improving_v03/host_state.py"
+      - "experiments/self_improving_v03/carryover_audit.py"
+      - ".github/workflows/next-generation-capability.yml"
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Second independent stream
+        run: python experiment_runner.py second-stream python second_stream_replication.py
+        working-directory: experiments/self_improving_v03
+      - name: Carryover audit
+        run: python experiment_runner.py carryover python carryover_audit.py
+        working-directory: experiments/self_improving_v03
+      - name: Host-state unit test
+        run: pytest -q test_host_state.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: next-generation-evidence
+          path: experiments/self_improving_v03/artifacts/
