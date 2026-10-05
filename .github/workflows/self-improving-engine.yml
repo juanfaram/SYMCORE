@@ -100,6 +100,12 @@ jobs:
       - name: Longitudinal acquisition and risk
         run: python longitudinal_growth.py
         working-directory: experiments/self_improving_v03
+      - name: Permuted longitudinal acquisition
+        run: python longitudinal_permutations.py
+        working-directory: experiments/self_improving_v03
+      - name: Non-temporal tabular host
+        run: python tabular_host.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
