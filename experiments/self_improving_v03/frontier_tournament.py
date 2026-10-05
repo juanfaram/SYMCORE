@@ -67,9 +67,15 @@ def run(seeds=(11,23,37,51,73)):
         evidence[name]={"axes":axes,"trials":[asdict(t) for t in trials],
                         "frontier_accepted":frontier.consider(name,cap)}
     accepted=[name for name,_ in frontier.items]
+    properties={
+      "reproducible_inputs":len(set(seeds))==len(seeds),
+      "uncertainty_reported":all(all("ci95" in evidence[n]["axes"][a] for a in Trial.__dataclass_fields__) for n in policies),
+      "tradeoffs_present":len(accepted)>=2,
+      "learnability_measured":all("learnability" in evidence[n]["axes"] for n in policies),
+      "multi_seed":len(seeds)>=5}
     report={"schema":"symcore.frontier.v3","seeds":list(seeds),
-            "accepted_frontier":accepted,"candidates":evidence,
-            "passed":len(accepted)>=1 and all(len(evidence[n]["trials"])==len(seeds) for n in policies)}
+            "accepted_frontier":accepted,"candidates":evidence,"properties":properties,
+            "passed":all(properties.values()) and all(len(evidence[n]["trials"])==len(seeds) for n in policies)}
     Path("artifacts").mkdir(exist_ok=True)
     Path("artifacts/frontier_report.json").write_text(json.dumps(report,indent=2))
     print(json.dumps(report,indent=2));return report
