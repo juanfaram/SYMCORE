@@ -30,10 +30,16 @@ def run():
  eb=[];eo=[];es=[];windows=[];drift_flags=[];recent=[]
  with path.open() as f:
   for i,r in enumerate(csv.DictReader(f),1):
-   y=float(r["cnt"]);be=baseline.step(r,y);oe=online.step(r,y);se=sym.step(r,y);eb.append(be);eo.append(oe);es.append(se)\n   # Drift label is computed from online-control error only, before using SYMCORE advantage.\n   hist=recent[-256:];mu=statistics.fmean(hist) if hist else oe;sd=statistics.stdev(hist) if len(hist)>1 else 0.\n   drift_flags.append(len(hist)>=128 and oe>mu+1.5*sd);recent.append(oe)
+   y=float(r["cnt"]);be=baseline.step(r,y);oe=online.step(r,y);se=sym.step(r,y);eb.append(be);eo.append(oe);es.append(se)
+   # Drift label is computed from online-control error only, before using SYMCORE advantage.
+   hist=recent[-256:];mu=statistics.fmean(hist) if hist else oe;sd=statistics.stdev(hist) if len(hist)>1 else 0.
+   drift_flags.append(len(hist)>=128 and oe>mu+1.5*sd);recent.append(oe)
    if i%1024==0 and i>=2048:
     windows.append({"at":i,"vs_baseline":stats(eb[-1024:],es[-1024:]),"vs_online":stats(eo[-1024:],es[-1024:])})
- drift_idx=[i for i,x in enumerate(drift_flags) if x];stable_idx=[i for i,x in enumerate(drift_flags) if not x]\n def subset(ix):return stats([eo[i] for i in ix],[es[i] for i in ix]) if len(ix)>1 else None\n out={"dataset":"UCI Bike Sharing hour.csv","rows":len(eb),"paired":True,\n      "drift_conditioned":{"drift_n":len(drift_idx),"stable_n":len(stable_idx),"drift":subset(drift_idx),"stable":subset(stable_idx)},
+ drift_idx=[i for i,x in enumerate(drift_flags) if x];stable_idx=[i for i,x in enumerate(drift_flags) if not x]
+ def subset(ix):return stats([eo[i] for i in ix],[es[i] for i in ix]) if len(ix)>1 else None
+ out={"dataset":"UCI Bike Sharing hour.csv","rows":len(eb),"paired":True,
+      "drift_conditioned":{"drift_n":len(drift_idx),"stable_n":len(stable_idx),"drift":subset(drift_idx),"stable":subset(stable_idx)},
       "vs_baseline":stats(eb[-2048:],es[-2048:]),"vs_online_control":stats(eo[-2048:],es[-2048:]),
       "positive_A_vs_online_fraction":round(sum(w["vs_online"]["A"]>0 for w in windows)/len(windows),4),
       "windows":windows}
