@@ -16,10 +16,10 @@ jobs:
       - name: Compile
         run: python -m compileall -q .
         working-directory: experiments/self_improving_v03
-      - name: Pi0 vs Pi0.5 vs Pi1
+      - name: Adaptive Pi vs online-from-scratch
         run: python pi_growth_benchmark.py
         working-directory: experiments/self_improving_v03
       - uses: actions/upload-artifact@v5
         with:
           name: pi-growth-evidence
-          path: experiments/self_improving_v03/artifacts/pi_growth_report.json
+          path: experiments/self_improving_v03/artifacts/pi_adaptive_report.json
