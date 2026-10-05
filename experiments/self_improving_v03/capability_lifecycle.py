@@ -5,7 +5,7 @@ import json,math,statistics
 from dataclasses import dataclass,asdict
 from pathlib import Path
 from repertoire import Repertoire,Evidence
-from capability_frontier import Capability,Frontier
+from capability_frontier import Capability,Frontier,Interval
 from research_scheduler import ResearchScheduler
 
 @dataclass
@@ -18,7 +18,7 @@ class ReplicatedEvidence:
 class CapabilityLifecycle:
     """Wild population -> evidence archive -> validated frontier -> repertoire."""
     def __init__(self,min_seeds=5,max_ci=.08):
-        self.min_seeds=min_seeds;self.max_ci=max_ci;self.archive=[];self.frontier=Frontier(.05);self.repertoire=Repertoire();self.scheduler=ResearchScheduler(["adaptation","retention","robustness","efficiency","novelty"])
+        self.min_seeds=min_seeds;self.max_ci=max_ci;self.archive=[];self.frontier=Frontier(regression_budgets={a:.05 for a in ("quality","adaptation","retention","efficiency","learnability")});self.repertoire=Repertoire();self.scheduler=ResearchScheduler(["adaptation","retention","robustness","efficiency","novelty"])
     def submit(self,e):
         axes={k:e.axis(k) for k in ("quality","adaptation","retention","efficiency","robustness")}
         record={"name":e.name,"axes":axes,"seeds":len(e.quality),"novelty":e.novelty,"cost":e.cost,"validated":False}
@@ -26,7 +26,10 @@ class CapabilityLifecycle:
         if len(e.quality)<self.min_seeds:return record
         if any(axes[k]["ci95"]>self.max_ci for k in axes):return record
         # conservative capability uses lower confidence bound, not optimistic mean
-        c=Capability(axes["quality"]["lower"],axes["adaptation"]["lower"],axes["retention"]["lower"],axes["efficiency"]["lower"])
+        # Lifecycle v1 has no direct future-acquisition trial; use a conservative proxy until measured.
+        learn=max(0.,.5*axes["adaptation"]["lower"]+.5*axes["retention"]["lower"])
+        def I(k):return Interval(axes[k]["mean"],axes[k]["lower"],axes[k]["upper"])
+        c=Capability(I("quality"),I("adaptation"),I("retention"),I("efficiency"),Interval(learn,learn,learn))
         if not self.frontier.consider(e.name,c):return record
         ev=Evidence(axes["quality"]["mean"],axes["adaptation"]["mean"],axes["retention"]["mean"],axes["efficiency"]["mean"],axes["robustness"]["mean"],e.novelty,len(e.quality),e.cost,e.name)
         self.repertoire.consider(e.name,ev);record["validated"]=True
