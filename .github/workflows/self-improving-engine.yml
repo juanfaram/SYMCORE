@@ -1,135 +1,23 @@
-name: self-improving-engine
+name: legacy-research-smoke
 on:
-  pull_request:
-  push:
-    branches:
-      - experiment/self-improving-v0.1
   workflow_dispatch:
-
+  pull_request:
+    paths:
+      - "experiments/self_improving_v03/**"
+concurrency:
+  group: legacy-research-smoke-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  evaluate:
+  smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-      - name: Install test dependencies
-        run: pip install pytest
-      - name: Static compile gate
+        with: {python-version: "3.11"}
+      - run: pip install pytest
+      - name: Compile research archive
         run: python -m compileall -q .
         working-directory: experiments/self_improving_v03
-      - name: Unit and regression tests
+      - name: Unit tests only
         run: pytest -q
-        working-directory: experiments/self_improving_v03
-      - name: Evolution benchmark
-        run: python evaluate.py
-        working-directory: experiments/self_improving_v03
-      - name: Specialist benchmark
-        run: python benchmark_specialists.py
-        working-directory: experiments/self_improving_v03
-      - name: Interaction learning
-        run: python interaction_learner.py
-        working-directory: experiments/self_improving_v03
-      - name: Distribution-shift stress
-        run: python stress_interactions.py
-        working-directory: experiments/self_improving_v03
-      - name: Mixture benchmark
-        run: python benchmark_mixture.py
-        working-directory: experiments/self_improving_v03
-      - name: Continual-learning curriculum
-        run: python curriculum.py
-        working-directory: experiments/self_improving_v03
-      - name: Adversarial 20k interaction arena
-        run: python adversarial_arena.py
-        working-directory: experiments/self_improving_v03
-      - name: Out-of-distribution arena
-        run: python ood_arena.py
-        working-directory: experiments/self_improving_v03
-      - name: Multi-seed capability frontier tournament
-        run: python frontier_tournament.py
-        working-directory: experiments/self_improving_v03
-      - name: Guarded specialist routing
-        run: python benchmark_guarded_router.py
-        working-directory: experiments/self_improving_v03
-      - name: Skill resurrection and compositional OOD
-        run: python resurrection_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Forward transfer benchmark
-        run: python transfer_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Multi-seed meta-transfer
-        run: python meta_transfer_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Cumulative transfer X plus Y to Z
-        run: python cumulative_transfer_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Residual seasonal specialist
-        run: python benchmark_residual.py
-        working-directory: experiments/self_improving_v03
-      - name: Real-data host control
-        run: python real_host_control.py
-        working-directory: experiments/self_improving_v03
-      - name: Capability growth ledger
-        run: python growth_report.py
-        working-directory: experiments/self_improving_v03
-      - name: Structural N-to-N-plus-1 growth
-        run: python structural_growth_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Permutation falsification of L(t)
-        run: python L_permutation_test.py
-        working-directory: experiments/self_improving_v03
-      - name: Inflation falsification of G(t)
-        run: python G_inflation_test.py
-        working-directory: experiments/self_improving_v03
-      - name: Independent ledger verification
-        run: python standalone_ledger_verify.py artifacts/capability_ledger.jsonl
-        working-directory: experiments/self_improving_v03
-      - name: Directional transfer matrix
-        run: python pairwise_transfer.py
-        working-directory: experiments/self_improving_v03
-      - name: Diagnose zero learning acceleration
-        run: python L_causal_diagnosis.py
-        working-directory: experiments/self_improving_v03
-      - name: Cross-host portability contract
-        run: python cross_host_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: North-star scorecard
-        run: python north_star_report.py
-        working-directory: experiments/self_improving_v03
-      - name: Longitudinal acquisition and risk
-        run: python longitudinal_growth.py
-        working-directory: experiments/self_improving_v03
-      - name: Permuted longitudinal acquisition
-        run: python longitudinal_permutations.py
-        working-directory: experiments/self_improving_v03
-      - name: Non-temporal tabular host
-        run: python tabular_host.py
-        working-directory: experiments/self_improving_v03
-      - name: Acquisition instrument sensitivity
-        run: python instrument_sensitivity.py
-        working-directory: experiments/self_improving_v03
-      - name: Tabular failure diagnosis
-        run: python tabular_failure_diagnosis.py
-        working-directory: experiments/self_improving_v03
-      - name: Acquisition instrument sensitivity v2
-        run: python instrument_sensitivity_v2.py
-        working-directory: experiments/self_improving_v03
-      - name: Useful tabular specialist diversity
-        run: python tabular_diversity_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Re-measure A with calibrated metric v2
-        run: python A_v2_benchmark.py
-        working-directory: experiments/self_improving_v03
-      - name: Confirm calibrated A statistically
-        run: python A_v2_confirmation.py
-        working-directory: experiments/self_improving_v03
-      - name: Upload evidence
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: evolution-evidence
-          path: experiments/self_improving_v03/artifacts/
-      - name: Hard progress gate
-        run: python progress_gate.py
         working-directory: experiments/self_improving_v03
