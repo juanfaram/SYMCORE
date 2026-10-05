@@ -1,0 +1,25 @@
+name: bidirectional-choice-460
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/bidirectional_choice_benchmark.py"
+      - ".github/workflows/bidirectional-choice-460.yml"
+jobs:
+  choice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Compile
+        run: python -m compileall -q bidirectional_choice_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Frozen Pi four-state exam
+        run: python bidirectional_choice_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
+        with:
+          name: bidirectional-choice-460
+          path: experiments/self_improving_v03/artifacts/bidirectional_choice_report.json
