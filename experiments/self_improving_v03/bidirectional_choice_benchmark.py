@@ -42,11 +42,11 @@ def oracle(z):
 def train_pi():
  # Separate experience stream: broad functional states, all operations evaluated by the frozen Frontier-v3-aligned outcome model.
  # Training never sees scenario names, test seeds, or oracle labels.
- pi=LearnedEvolutionPi(kernel_sigma=.24,temperature=.10);rng=random.Random(460031)
+ pi=LearnedEvolutionPi(k=48,temperature=.035,exploration=.04);rng=random.Random(460031)
  for _ in range(2400):
   z=tuple(rng.random() for _ in FEATURES)
   for op in OPS:pi.observe(z,op,pareto_gain(z,op))
- return pi.frozen()
+ pi.fit()\n return pi.frozen()
 def wilson(k,n,z=1.96):
  p=k/n;d=1+z*z/n;c=(p+z*z/(2*n))/d;h=z*math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return c-h,c+h
 def run(seeds=range(100)):
@@ -58,6 +58,6 @@ def run(seeds=range(100)):
    best=oracle(z);choice=pi.choose(z,rng);hits+=choice==best;counts[choice]+=1;oracle_counts[best]+=1
   rate=hits/len(seeds);lo,hi=wilson(hits,len(seeds));ok=rate>=.60 and lo>.50;passed &= ok
   rows[name]={"n":len(seeds),"optimal_choice_rate":rate,"ci95":[lo,hi],"choice_counts":counts,"oracle_counts":oracle_counts,"passed":ok}
- out={"schema":"symcore.bidirectional-choice.v2","oracle":"frontier-v3-aligned","policy":"learned-from-separate-evolution-experience","training_states":2400,"threshold":.60,"ci95_lower_required":.50,"seeds_per_state":len(seeds),"states":rows,"passed":bool(passed)}
+ out={"schema":"symcore.bidirectional-choice.v2","oracle":"frontier-v3-aligned","policy":"learned-operation-specific-context-geometry","training_states":2400,"threshold":.60,"ci95_lower_required":.50,"seeds_per_state":len(seeds),"states":rows,"passed":bool(passed)}
  Path("artifacts").mkdir(exist_ok=True);Path("artifacts/bidirectional_choice_report.json").write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2));return out
 if __name__=="__main__":run()
