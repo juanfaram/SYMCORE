@@ -33,6 +33,11 @@ def run():
       "adapter_discriminative":min(x["delta_cos"] for x in discrimination.values())>=.10,
       "acquisition_state_dimensions":DIMS,"mask_required_for_cross_host":True,
       "phase_niches":niches,"distinct_best_mechanisms":distinct,"niches_nontrivial":distinct>=2}
- out["prerequisites_pass"]=out["no_near_identity"] and out["adapter_discriminative"] and out["niches_nontrivial"]
+ # Cross-host acquisition state must explicitly support masking unavailable dimensions.
+ from acquisition_state import AcquisitionState
+ probe=AcquisitionState(1,.5,.5,.1,.0,.0,(True,True,False,False,True,False))
+ masked,mask=probe.masked()
+ out["acquisition_mask_contract"]=len(mask)==len(DIMS) and len(masked)==len(DIMS) and any(not x for x in mask)
+ out["prerequisites_pass"]=out["no_near_identity"] and out["adapter_discriminative"] and out["niches_nontrivial"] and out["acquisition_mask_contract"]
  Path("artifacts").mkdir(exist_ok=True);Path("artifacts/semantic_prerequisites.json").write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2));return out
 if __name__=="__main__":run()
