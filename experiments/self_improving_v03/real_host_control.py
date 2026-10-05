@@ -4,6 +4,7 @@ import csv,json,math,statistics
 from pathlib import Path
 from seasonal import SeasonalMemory
 from main import ensure
+from intervention_controller import InterventionController
 class Host:
  def __init__(self,keys):self.model=SeasonalMemory(keys,8)
  def step(self,r,y):
@@ -26,11 +27,17 @@ def stats(a,b):
          "gain":round(mean,3),"gain_ci95":[round(mean-1.96*se,3),round(mean+1.96*se,3)]}
 def run():
  path=Path("data/hour.csv");ensure(path)
- baseline=Host(("hr",));online=Host(("hr","workingday"));sym=SymcoreHost()
- eb=[];eo=[];es=[];windows=[];drift_flags=[];recent=[]
+ baseline=Host(("hr",));online=Host(("hr","workingday"));sym=SymcoreHost();selective=SymcoreHost();ctl=InterventionController()
+ eb=[];eo=[];es=[];ex=[];windows=[];drift_flags=[];recent=[];active_count=0
  with path.open() as f:
   for i,r in enumerate(csv.DictReader(f),1):
-   y=float(r["cnt"]);be=baseline.step(r,y);oe=online.step(r,y);se=sym.step(r,y);eb.append(be);eo.append(oe);es.append(se)
+   y=float(r["cnt"])
+   # Intervention decision is made before observing this outcome.
+   active=ctl.decide()
+   be=baseline.step(r,y);oe=online.step(r,y);se=sym.step(r,y)
+   xe=selective.step(r,y) if active else oe
+   eb.append(be);eo.append(oe);es.append(se);ex.append(xe);active_count+=int(active)
+   ctl.observe(oe)
    # Drift label is computed from online-control error only, before using SYMCORE advantage.
    hist=recent[-256:];mu=statistics.fmean(hist) if hist else oe;sd=statistics.stdev(hist) if len(hist)>1 else 0.
    drift_flags.append(len(hist)>=128 and oe>mu+1.5*sd);recent.append(oe)
@@ -41,6 +48,7 @@ def run():
  out={"dataset":"UCI Bike Sharing hour.csv","rows":len(eb),"paired":True,
       "drift_conditioned":{"drift_n":len(drift_idx),"stable_n":len(stable_idx),"drift":subset(drift_idx),"stable":subset(stable_idx)},
       "vs_baseline":stats(eb[-2048:],es[-2048:]),"vs_online_control":stats(eo[-2048:],es[-2048:]),
+      "selective_intervention":{"active_fraction":round(active_count/len(eo),4),"vs_online":stats(eo[-2048:],ex[-2048:]),"vs_always_on":stats(es[-2048:],ex[-2048:])},
       "positive_A_vs_online_fraction":round(sum(w["vs_online"]["A"]>0 for w in windows)/len(windows),4),
       "windows":windows}
  Path("artifacts/real_host_control_report.json").write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2));return out
