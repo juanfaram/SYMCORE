@@ -4,9 +4,11 @@ Gap is causally observable only as drift/stable from a residual change detector.
 import json,math,random,statistics
 from pathlib import Path
 from operator_policy import OperatorPolicy
+from intervention_effects import Effect,choose_local
 OPS=("fast","slow","reset")
+LOCAL_EFFECTS={"fast":Effect(plasticity=1.,exploration=.8,stability=-.25),"slow":Effect(stability=1.,plasticity=.15),"reset":Effect(reset=1.,plasticity=.65)}
 # Historical evidence comes from prior acquisition behavior, not hidden Host3 regimes.
-HIST=[("drift","fast",1),("drift","reset",1),("drift","slow",0),("stable","slow",1),("stable","fast",1),("stable","reset",0)]
+HIST=[("drift","adapt_fast",1),("drift","reset_state",1),("drift","consolidate",0),("stable","consolidate",1),("stable","balanced_adapt",1),("stable","reset_state",0)]
 class Detector:
  def __init__(self):self.e=[] 
  def gap(self):
@@ -22,7 +24,8 @@ def env_probs(t,seed):
 def simulate(seed,adaptive,h=0.,T=720):
  rng=random.Random(seed);p=OperatorPolicy(operators=OPS,history_strength=h);det=Detector()
  if adaptive:
-  for g,o,s in HIST:p.update(g,o,s,weight=h)
+  for g,intent,s in HIST:
+   p.update(g,choose_local(intent,LOCAL_EFFECTS),s,weight=h)
  q=[.5]*3;n=[0]*3;regret=0.;viol=0
  for t in range(T):
   gap=det.gap();op=p.choose(gap,rng)
