@@ -1,0 +1,25 @@
+name: calibrated-A-replication
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/A_replication.py"
+      - "experiments/self_improving_v03/acquisition_metric.py"
+      - ".github/workflows/calibrated-A-replication.yml"
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python -m py_compile acquisition_metric.py A_replication.py
+        working-directory: experiments/self_improving_v03
+      - run: python experiment_runner.py replicate-A python A_replication.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: calibrated-A-replication
+          path: experiments/self_improving_v03/artifacts/
