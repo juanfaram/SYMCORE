@@ -1,9 +1,12 @@
-# Host 3 pre-registration
-Paradigm: sequential decision/control, not forecasting.
-Environment: non-stationary contextual bandit with hidden regime changes and observable causal state.
-
-Pi_0 is the frozen current intervention policy. Pi_1 is learned from prior host-state / future-value histories. Neither may alter the external evidence gate.
-
-Primary endpoint: on held-out unseen regimes, Pi_1 must reduce cumulative regret versus Pi_0 with a 95% confidence interval whose lower improvement bound is > 0, while satisfying the same risk budget.
-
-This directly tests whether prior growth experience produced a better future growth policy: Pi_1 > Pi_0.
+# Host 3 — frozen preregistration v2
+- Paradigm: non-stationary sequential decision/control.
+- Gap observable to Pi: **drift/stable only**, from a causal residual change detector. Hidden regime labels are forbidden.
+- Pi_0.5: online-only OperatorPolicy.
+- Pi_2: identical online budget plus historical prior.
+- Pi selects adaptation operators (fast/slow/reset); it does not select the reward-maximizing arm directly.
+- Six preregistered history strengths: 0.10, 0.25, 0.50, 1, 2, 4.
+- 200 fixed seeds; unseen randomized regime boundaries.
+- Primary endpoint: regret(Pi_0.5)-regret(Pi_2), CI95 lower > 0.
+- Safety endpoint: risk_delta CI95 upper <= 0.
+- PASS: both endpoints in >=3/6 strengths.
+- No tuning after results.
