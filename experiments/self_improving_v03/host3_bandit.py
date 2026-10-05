@@ -4,7 +4,8 @@ Gap is causally observable only as drift/stable from a residual change detector.
 import json,math,random,statistics
 from pathlib import Path
 from operator_policy import OperatorPolicy
-from intervention_effects import Effect,choose_local
+from intervention_effects import Effect,INTENTS
+from effect_memory import EffectMemory
 OPS=("fast","slow","reset")
 LOCAL_EFFECTS={"fast":Effect(plasticity=1.,exploration=.8,stability=-.25),"slow":Effect(stability=1.,plasticity=.15),"reset":Effect(reset=1.,plasticity=.65)}
 # Historical evidence comes from prior acquisition behavior, not hidden Host3 regimes.
@@ -22,13 +23,18 @@ def env_probs(t,seed):
  best=[r.randrange(3) for _ in range(4)];phase=max(i for i,b in enumerate(bounds[:-1]) if t>=b)
  ps=[.30,.30,.30];ps[best[phase]]=.72;return ps
 def simulate(seed,adaptive,h=0.,T=720):
- rng=random.Random(seed);p=OperatorPolicy(operators=OPS,history_strength=h);det=Detector()
+ rng=random.Random(seed);p=OperatorPolicy(operators=OPS,history_strength=h);det=Detector();mem=EffectMemory(prior=max(.25,1./max(h,.1)))
  if adaptive:
   for g,intent,s in HIST:
-   p.update(g,choose_local(intent,LOCAL_EFFECTS),s,weight=h)
+   # History is stored in the shared effect space; no Host3 operator name appears here.
+   for _ in range(max(1,int(round(4*h)))):mem.observe(g,INTENTS[intent],s)
  q=[.5]*3;n=[0]*3;regret=0.;viol=0
  for t in range(T):
-  gap=det.gap();op=p.choose(gap,rng)
+  gap=det.gap()
+  if adaptive:
+   ranked=mem.rank(gap,LOCAL_EFFECTS);eps_transfer=.15
+   op=rng.choice(OPS) if rng.random()<eps_transfer else ranked[0]
+  else:op=p.choose(gap,rng)
   # growth operator controls adaptation dynamics, not action directly
   if op=="reset" and gap=="drift":q=[.5]*3;n=[0]*3
   eps=.28 if op=="fast" else .08 if op=="slow" else .16
@@ -36,6 +42,7 @@ def simulate(seed,adaptive,h=0.,T=720):
   probs=env_probs(t,seed);reward=int(rng.random()<probs[arm]);best=max(probs);step_regret=best-probs[arm];regret+=step_regret;viol+=step_regret>.35
   n[arm]+=1;lr=.22 if op=="fast" else .06 if op=="slow" else .12;q[arm]=(1-lr)*q[arm]+lr*reward
   det.observe(abs(reward-q[arm]));p.update(gap,op,reward)
+  if adaptive:mem.observe(gap,LOCAL_EFFECTS[op],reward)
  return regret,viol/T
 def ci(ds):
  m=statistics.fmean(ds);se=statistics.stdev(ds)/(len(ds)**.5);return [m-1.96*se,m+1.96*se]
