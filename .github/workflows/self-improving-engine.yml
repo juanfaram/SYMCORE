@@ -67,6 +67,9 @@ jobs:
       - name: Residual seasonal specialist
         run: python benchmark_residual.py
         working-directory: experiments/self_improving_v03
+      - name: Real-data host control
+        run: python real_host_control.py
+        working-directory: experiments/self_improving_v03
       - name: Capability growth ledger
         run: python growth_report.py
         working-directory: experiments/self_improving_v03
