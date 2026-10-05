@@ -5,6 +5,7 @@ on:
     branches: [experiment/self-improving-v0.1]
     paths:
       - "experiments/self_improving_v03/semantic_transfer_benchmark.py"
+      - "experiments/self_improving_v03/semantic_prerequisites.py"
       - "experiments/self_improving_v03/acquisition_experience.py"
       - "experiments/self_improving_v03/semantic_growth_policy.py"
       - ".github/workflows/semantic-cross-host-transfer.yml"
@@ -14,12 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
-        with: {python-version: "3.11"}
-      - run: pip install pytest\n      - run: python -m pytest -q test_semantic_transfer.py\n        working-directory: experiments/self_improving_v03\n      - run: python experiment_runner.py semantic-prerequisites python semantic_prerequisites.py
+        with:
+          python-version: "3.11"
+      - name: Install test dependency
+        run: pip install pytest
+      - name: Unit semantics
+        run: python -m pytest -q test_semantic_transfer.py
         working-directory: experiments/self_improving_v03
-      - run: python experiment_runner.py semantic-transfer python semantic_transfer_benchmark.py
+      - name: Prerequisite audit
+        run: python experiment_runner.py semantic-prerequisites python semantic_prerequisites.py
         working-directory: experiments/self_improving_v03
-      - if: always()
+      - name: Cross-host falsification
+        run: python experiment_runner.py semantic-transfer python semantic_transfer_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Preserve evidence
+        if: always()
         uses: actions/upload-artifact@v5
         with:
           name: semantic-transfer-evidence
