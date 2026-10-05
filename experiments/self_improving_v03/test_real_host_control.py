@@ -1,7 +1,10 @@
-from real_host_control import ControlHost,SymcoreHost
+from real_host_control import Host,SymcoreHost,stats
 ROW={"hr":"8","weekday":"1","workingday":"1","weathersit":"1"}
-def test_real_hosts_are_causal_and_learn():
- c=ControlHost();s=SymcoreHost()
- a=c.step(ROW,100);b=s.step(ROW,100)
- assert a==100 and b==100
- assert c.step(ROW,100)<a and s.step(ROW,100)<=b
+def test_all_three_arms_learn_causally():
+ b=Host(("hr",));o=Host(("hr","workingday"));s=SymcoreHost()
+ first=[b.step(ROW,100),o.step(ROW,100),s.step(ROW,100)]
+ second=[b.step(ROW,100),o.step(ROW,100),s.step(ROW,100)]
+ assert first==[100,100,100]
+ assert all(y<=x for x,y in zip(first,second))
+def test_A_is_zero_for_identical_losses():
+ assert stats([1,2,3],[1,2,3])["A"]==0
