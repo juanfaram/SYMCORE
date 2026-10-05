@@ -1,15 +1,15 @@
 from intervention_controller import InterventionController
-def test_controller_is_causal_and_hysteretic():
- c=InterventionController(enter_z=.5,exit_z=.1,min_history=8,window=16,exit_patience=3)
- for x in [1.0]*8:c.observe(x)
+def test_controller_rejects_outlier_and_accepts_sustained_shift():
+ c=InterventionController(enter_z=.5,exit_z=.1,min_history=32,window=64,exit_patience=3)
+ # Nonzero baseline variance makes the z-score test meaningful.
+ for i in range(48):c.observe(1.0 + (0.1 if i%2 else -0.1))
  assert c.decide() is False
- # A current outcome cannot affect the decision until after observe().
- before=c.decide()
- c.observe(10.0)
- assert before is False
- # The design intentionally reacts to sustained recent change, not one spike.
- for _ in range(7):c.observe(10.0)
+ # One spike is explicitly not enough.
+ c.observe(4.0)
+ assert c.decide() is False
+ # A sustained recent regime shift is enough, using only already-observed losses.
+ for _ in range(23):c.observe(4.0)
  assert c.decide() is True
- # One calm observation cannot chatter the controller back off.
+ # Hysteresis: one calm observation cannot switch it straight back off.
  c.observe(1.0)
  assert c.decide() is True
