@@ -1,0 +1,36 @@
+name: calibrated-A-confirmation
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - "experiments/self_improving_v03/A_v2_benchmark.py"
+      - "experiments/self_improving_v03/A_v2_confirmation.py"
+      - "experiments/self_improving_v03/acquisition_metric.py"
+      - ".github/workflows/calibrated-A-confirmation.yml"
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Compile measurement code only
+        run: python -m py_compile acquisition_metric.py A_v2_benchmark.py A_v2_confirmation.py
+        working-directory: experiments/self_improving_v03
+      - name: Generate calibrated A evidence
+        run: python A_v2_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Attempt to falsify A statistically
+        run: python A_v2_confirmation.py
+        working-directory: experiments/self_improving_v03
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: calibrated-A-evidence
+          path: |
+            experiments/self_improving_v03/artifacts/A_v2_report.json
+            experiments/self_improving_v03/artifacts/A_v2_confirmation.json
