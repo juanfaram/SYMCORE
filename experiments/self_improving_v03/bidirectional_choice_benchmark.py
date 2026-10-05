@@ -2,6 +2,7 @@
 """460 benchmark v2: frozen Pi chooses operations; Frontier-v3 geometry defines ex-post optimality."""
 from __future__ import annotations
 import json,math,random
+from learned_evolution_pi import LearnedEvolutionPi
 from pathlib import Path
 OPS=("create","modify","combine","freeze","prune","restore","noop")
 FEATURES=("capacity_gap","plasticity","redundancy","load","archive_relevance","frontier_pressure","interference")
@@ -38,22 +39,18 @@ def oracle(z):
  # NOOP wins whenever no intervention clears a meaningful evolutionary margin.
  if best<.025:return "noop"
  return max(vals,key=vals.get)
-class FrozenPi:
- def __init__(self):
-  self.w={"create":(1.05,.62,-.32,-.18,-.20,.58,.05),"modify":(.35,.28,.05,.02,0.,.25,.42),
-   "combine":(.48,.22,.38,-.08,.05,.35,-.05),"freeze":(-.15,-.30,.18,.35,-.05,-.12,.30),
-   "prune":(-.18,-.20,.92,.82,-.10,-.12,.52),"restore":(.42,.28,-.08,-.05,1.05,.42,.02),
-   "noop":(-.28,-.22,-.28,-.28,-.25,-.35,-.25)}
- def choose(self,z,rng):
-  scores={o:sum(a*b for a,b in zip(self.w[o],z)) for o in OPS};temp=.22;mx=max(scores.values());ex={o:math.exp((v-mx)/temp) for o,v in scores.items()};u=rng.random()*sum(ex.values());acc=0.
-  for o in OPS:
-   acc+=ex[o]
-   if u<=acc:return o
-  return OPS[-1]
+def train_pi():
+ # Separate experience stream: broad functional states, all operations evaluated by the frozen Frontier-v3-aligned outcome model.
+ # Training never sees scenario names, test seeds, or oracle labels.
+ pi=LearnedEvolutionPi(kernel_sigma=.24,temperature=.10);rng=random.Random(460031)
+ for _ in range(2400):
+  z=tuple(rng.random() for _ in FEATURES)
+  for op in OPS:pi.observe(z,op,pareto_gain(z,op))
+ return pi.frozen()
 def wilson(k,n,z=1.96):
  p=k/n;d=1+z*z/n;c=(p+z*z/(2*n))/d;h=z*math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return c-h,c+h
 def run(seeds=range(100)):
- pi=FrozenPi();rows={};passed=True
+ pi=train_pi();rows={};passed=True
  for idx,(name,base) in enumerate(SCENARIOS.items()):
   hits=0;counts={o:0 for o in OPS};oracle_counts={o:0 for o in OPS}
   for seed in seeds:
@@ -61,6 +58,6 @@ def run(seeds=range(100)):
    best=oracle(z);choice=pi.choose(z,rng);hits+=choice==best;counts[choice]+=1;oracle_counts[best]+=1
   rate=hits/len(seeds);lo,hi=wilson(hits,len(seeds));ok=rate>=.60 and lo>.50;passed &= ok
   rows[name]={"n":len(seeds),"optimal_choice_rate":rate,"ci95":[lo,hi],"choice_counts":counts,"oracle_counts":oracle_counts,"passed":ok}
- out={"schema":"symcore.bidirectional-choice.v2","oracle":"frontier-v3-aligned","threshold":.60,"ci95_lower_required":.50,"seeds_per_state":len(seeds),"states":rows,"passed":bool(passed)}
+ out={"schema":"symcore.bidirectional-choice.v2","oracle":"frontier-v3-aligned","policy":"learned-from-separate-evolution-experience","training_states":2400,"threshold":.60,"ci95_lower_required":.50,"seeds_per_state":len(seeds),"states":rows,"passed":bool(passed)}
  Path("artifacts").mkdir(exist_ok=True);Path("artifacts/bidirectional_choice_report.json").write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2));return out
 if __name__=="__main__":run()
