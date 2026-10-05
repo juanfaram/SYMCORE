@@ -115,6 +115,12 @@ jobs:
       - name: Acquisition instrument sensitivity v2
         run: python instrument_sensitivity_v2.py
         working-directory: experiments/self_improving_v03
+      - name: Useful tabular specialist diversity
+        run: python tabular_diversity_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Re-measure A with calibrated metric v2
+        run: python A_v2_benchmark.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
