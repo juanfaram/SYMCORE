@@ -112,6 +112,9 @@ jobs:
       - name: Tabular failure diagnosis
         run: python tabular_failure_diagnosis.py
         working-directory: experiments/self_improving_v03
+      - name: Acquisition instrument sensitivity v2
+        run: python instrument_sensitivity_v2.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
