@@ -20,17 +20,20 @@ def arm(seed,mode,strength=0.,draws=300):
  rng=random.Random(seed);p=OperatorPolicy(history_strength=strength)
  if mode=="adaptive":
   for gap,op,s in HISTORY:p.update(gap,op,s,weight=strength)
- score=0.
+ score=0.;first=0.;second=0.;by_gap={g:[0,0] for g,*_ in BASE}
  for i in range(draws):
-  gap=BASE[i%len(BASE)][0];phase=int(i>=draws//2);op=p.choose(gap,rng);ok=rng.random()<prob(gap,op,phase);score+=ok
+  gap=BASE[i%len(BASE)][0];phase=int(i>=draws//2);op=p.choose(gap,rng);ok=rng.random()<prob(gap,op,phase);score+=ok;first+=ok if phase==0 else 0;second+=ok if phase==1 else 0;by_gap[gap][0]+=ok;by_gap[gap][1]+=1
   if mode in ("online","adaptive"):p.update(gap,op,ok)
- return score/draws
+ return {"all":score/draws,"first":first/(draws//2),"second":second/(draws-draws//2),"by_gap":{g:v[0]/v[1] for g,v in by_gap.items()}}
 def run(seeds=range(100)):
- p05=[arm(s,"online") for s in seeds]
+ p05_raw=[arm(s,"online") for s in seeds];p05=[x["all"] for x in p05_raw]
  strengths=(.10,.25,.50,1.0,2.0,4.0);curve=[]
  for h in strengths:
-  xs=[arm(s,"adaptive",h) for s in seeds];cmp=compare(p05,xs)
-  curve.append({"history_strength":h,"mean":statistics.fmean(xs),"vs_Pi05":cmp})
+  raw=[arm(s,"adaptive",h) for s in seeds];xs=[x["all"] for x in raw];cmp=compare(p05,xs)
+  halves={"first":compare([x["first"] for x in p05_raw],[x["first"] for x in raw]),
+          "second":compare([x["second"] for x in p05_raw],[x["second"] for x in raw])}
+  gaps={g:compare([x["by_gap"][g] for x in p05_raw],[x["by_gap"][g] for x in raw]) for g,*_ in BASE}
+  curve.append({"history_strength":h,"mean":statistics.fmean(xs),"vs_Pi05":cmp,"by_half":halves,"by_gap":gaps})
  positive=[x for x in curve if x["vs_Pi05"]["ci95"][0]>0]
  # Robustness, not best-point optimization: require at least half the preregistered strengths to win.
  out={"schema":"symcore.pi_adaptive.v1","seeds":len(p05),"Pi05_online_mean":statistics.fmean(p05),
