@@ -91,6 +91,12 @@ jobs:
       - name: Diagnose zero learning acceleration
         run: python L_causal_diagnosis.py
         working-directory: experiments/self_improving_v03
+      - name: Cross-host portability contract
+        run: python cross_host_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: North-star scorecard
+        run: python north_star_report.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
