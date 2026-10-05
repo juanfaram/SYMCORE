@@ -5,8 +5,8 @@ from collections import defaultdict
 import math,random
 OPERATORS=("parameters","features","memory","representation","structure","objectives","learning")
 class OperatorPolicy:
-    def __init__(self,operators=OPERATORS,prior=1.0):
-        self.operators=tuple(operators);self.prior=float(prior)
+    def __init__(self,operators=OPERATORS,prior=1.0,history_strength=1.0):
+        self.operators=tuple(operators);self.prior=float(prior);self.history_strength=float(history_strength)
         self.success=defaultdict(lambda:defaultdict(float));self.trials=defaultdict(lambda:defaultdict(float))
     def update(self,gap_type,operator,survived,weight=1.0):
         if operator not in self.operators:raise ValueError(operator)
@@ -24,10 +24,10 @@ class OperatorPolicy:
         return self.operators[-1]
     def entropy(self,gap_type):
         return -sum(p*math.log(max(p,1e-12)) for p in self.distribution(gap_type).values())
-    def ingest_verified_history(self,rows):
+    def ingest_verified_history(self,rows,weight=None):
         # Only externally validated decisions teach Π. OBSERVE/REJECT do not become positive evidence.
         for r in rows:
             gap=r.get("gap_type") or r.get("weakness") or "unknown"
             op=r.get("operator")
-            if op in self.operators:self.update(gap,op,r.get("decision")=="SURVIVE")
+            if op in self.operators:self.update(gap,op,r.get("decision")=="SURVIVE",self.history_strength if weight is None else weight)
         return self
