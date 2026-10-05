@@ -7,9 +7,9 @@ from intervention_effects import Effect,INTENTS,cosine
 from effect_adapter import EffectAdapter
 from semantic_growth_policy import SemanticGrowthPolicy
 from host3_bandit import env_probs
-SOURCE_EFFECTS={"source_plastic":Effect(plasticity=1,exploration=.7,stability=-.3),
-                "source_stable":Effect(stability=1,plasticity=-.2),
-                "source_reset":Effect(reset=1,plasticity=.6)}
+SOURCE_EFFECTS={"source_plastic":Effect(plasticity=.55,exploration=.45,stability=.25,representation=.35),
+                "source_stable":Effect(stability=.60,plasticity=.20,representation=.55,exploration=-.15),
+                "source_reset":Effect(reset=.55,plasticity=.25,representation=.45,stability=.20)}
 TARGET_EFFECTS={"fast":Effect(plasticity=1,exploration=.8,stability=-.4),
                 "slow":Effect(stability=.9,plasticity=.1,exploration=.1),
                 "reset":Effect(reset=1,plasticity=.6,exploration=.2)}
