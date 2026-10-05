@@ -121,6 +121,9 @@ jobs:
       - name: Re-measure A with calibrated metric v2
         run: python A_v2_benchmark.py
         working-directory: experiments/self_improving_v03
+      - name: Confirm calibrated A statistically
+        run: python A_v2_confirmation.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
