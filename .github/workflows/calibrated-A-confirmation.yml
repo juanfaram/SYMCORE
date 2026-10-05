@@ -2,12 +2,12 @@ name: calibrated-A-confirmation
 on:
   workflow_dispatch:
   push:
-    branches:
-      - experiment/self-improving-v0.1
+    branches: [experiment/self-improving-v0.1]
     paths:
       - "experiments/self_improving_v03/A_v2_benchmark.py"
       - "experiments/self_improving_v03/A_v2_confirmation.py"
       - "experiments/self_improving_v03/acquisition_metric.py"
+      - "experiments/self_improving_v03/experiment_runner.py"
       - ".github/workflows/calibrated-A-confirmation.yml"
 jobs:
   confirm:
@@ -15,22 +15,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-      - name: Compile measurement code only
-        run: python -m py_compile acquisition_metric.py A_v2_benchmark.py A_v2_confirmation.py
+        with: {python-version: "3.11"}
+      - name: Compile measurement boundary
+        run: python -m py_compile acquisition_metric.py A_v2_benchmark.py A_v2_confirmation.py experiment_runner.py
         working-directory: experiments/self_improving_v03
       - name: Generate calibrated A evidence
-        run: python A_v2_benchmark.py
+        run: python experiment_runner.py calibrated-A python A_v2_benchmark.py
         working-directory: experiments/self_improving_v03
-      - name: Attempt to falsify A statistically
-        run: python A_v2_confirmation.py
+      - name: Attempt to falsify A
+        run: python experiment_runner.py confirm-A python A_v2_confirmation.py
         working-directory: experiments/self_improving_v03
       - name: Preserve evidence
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: calibrated-A-evidence
-          path: |
-            experiments/self_improving_v03/artifacts/A_v2_report.json
-            experiments/self_improving_v03/artifacts/A_v2_confirmation.json
+          path: experiments/self_improving_v03/artifacts/
