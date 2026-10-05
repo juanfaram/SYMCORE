@@ -1,0 +1,23 @@
+name: host3-pi-composition
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/host3_bandit.py"
+      - "experiments/self_improving_v03/HOST3_PREREGISTRATION.md"
+      - ".github/workflows/host3-pi-composition.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python experiment_runner.py host3-pi-composition python host3_bandit.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: host3-pi-composition
+          path: experiments/self_improving_v03/artifacts/
