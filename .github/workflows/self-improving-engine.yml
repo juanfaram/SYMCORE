@@ -97,6 +97,9 @@ jobs:
       - name: North-star scorecard
         run: python north_star_report.py
         working-directory: experiments/self_improving_v03
+      - name: Longitudinal acquisition and risk
+        run: python longitudinal_growth.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
