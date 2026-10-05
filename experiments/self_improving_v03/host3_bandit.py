@@ -18,13 +18,19 @@ class Detector:
   return "drift" if a>b+.6*sd else "stable"
  def observe(self,e):self.e.append(float(e))
 def env_probs(t,seed):
- # unseen randomized regime boundaries and best arms
- r=random.Random(seed+999);bounds=[0,180+r.randrange(-25,26),360+r.randrange(-25,26),540+r.randrange(-25,26),720]
- best=[r.randrange(3) for _ in range(4)];phase=max(i for i,b in enumerate(bounds[:-1]) if t>=b)
- # Regimes differ in both best arm and sharpness: shock phases reward fast adaptation,
- # consolidation phases punish exploration, recovery phases reward reset/relearning.
- sharp=(.86,.58,.82,.56)[phase];floor=(.12,.36,.16,.38)[phase]
- ps=[floor,floor,floor];ps[best[phase]]=sharp;return ps
+ # Three physical regime types: stable, gradual drift, abrupt switch.
+ # No operator is named or privileged here; niches must emerge from adaptation dynamics.
+ r=random.Random(seed+999);shift=r.randrange(-20,21);x=t+shift
+ if x<240:
+  # stable: one arm persistently best
+  ps=[.72,.30,.30]
+ elif x<480:
+  # gradual: optimum moves continuously from arm 0 to arm 1
+  u=(x-240)/240.;ps=[.72-.42*u,.30+.42*u,.30]
+ else:
+  # abrupt: history becomes actively misleading
+  ps=[.30,.30,.76]
+ return ps
 def simulate(seed,adaptive,h=0.,T=720):
  rng=random.Random(seed);p=OperatorPolicy(operators=OPS,history_strength=h);det=Detector();mem=EffectMemory(prior=max(.25,1./max(h,.1)))
  if adaptive:
