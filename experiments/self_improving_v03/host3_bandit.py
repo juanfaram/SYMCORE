@@ -21,7 +21,10 @@ def env_probs(t,seed):
  # unseen randomized regime boundaries and best arms
  r=random.Random(seed+999);bounds=[0,180+r.randrange(-25,26),360+r.randrange(-25,26),540+r.randrange(-25,26),720]
  best=[r.randrange(3) for _ in range(4)];phase=max(i for i,b in enumerate(bounds[:-1]) if t>=b)
- ps=[.30,.30,.30];ps[best[phase]]=.72;return ps
+ # Regimes differ in both best arm and sharpness: shock phases reward fast adaptation,
+ # consolidation phases punish exploration, recovery phases reward reset/relearning.
+ sharp=(.86,.58,.82,.56)[phase];floor=(.12,.36,.16,.38)[phase]
+ ps=[floor,floor,floor];ps[best[phase]]=sharp;return ps
 def simulate(seed,adaptive,h=0.,T=720):
  rng=random.Random(seed);p=OperatorPolicy(operators=OPS,history_strength=h);det=Detector();mem=EffectMemory(prior=max(.25,1./max(h,.1)))
  if adaptive:
