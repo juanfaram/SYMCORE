@@ -9,6 +9,7 @@ def curve(seed,kind,n=600):
   base=50+20*math.sin(2*math.pi*i/period)+(20 if kind=="shift" and i>n//2 else 0);y=base+r.gauss(0,noise);k=i%period;p=mem.get(k,50);loss.append(abs(p-y));mem[k]=.8*mem.get(k,y)+.2*y
  return loss
 def run():
+ Path("artifacts").mkdir(parents=True,exist_ok=True)
  kinds=("easy","medium","hard","shift");seeds=(5,17,41,73,109,163,223);rows=[]
  for order in itertools.permutations(kinds):
   costs=[]
