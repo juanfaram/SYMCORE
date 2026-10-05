@@ -106,6 +106,12 @@ jobs:
       - name: Non-temporal tabular host
         run: python tabular_host.py
         working-directory: experiments/self_improving_v03
+      - name: Acquisition instrument sensitivity
+        run: python instrument_sensitivity.py
+        working-directory: experiments/self_improving_v03
+      - name: Tabular failure diagnosis
+        run: python tabular_failure_diagnosis.py
+        working-directory: experiments/self_improving_v03
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v5
