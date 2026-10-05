@@ -52,3 +52,21 @@ A system that merely improves accuracy but does not expand verified reachable co
 The multi-seed meta-transfer experiment has demonstrated a large reduction in acquisition interactions versus scratch. This evidence is now ingested into the ledger rather than treated as an isolated benchmark.
 
 Exploration remains broad; promotion remains evidence-gated.
+
+
+## Invariant north star
+
+SYMCORE is evaluated against four conditions, not against feature count:
+
+```
+DeltaOmega > 0
+A > 0
+dA/dE > 0
+P(R > Rmax) < delta
+```
+
+Unknown is a first-class state. Missing evidence never counts as success.
+
+Sequence: **use -> learn -> grow -> learn to grow -> accelerate growth**.
+
+Every experimental mechanism must either produce evidence for one of these conditions, reduce uncertainty about one, or be removed from the active research path.
