@@ -18,11 +18,11 @@ jobs:
           python-version: "3.11"
       - name: Install test runner
         run: python -m pip install pytest
-      - name: Policy invariants
-        run: python -m pytest -q test_learned_evolution_pi.py
-        working-directory: experiments/self_improving_v03
       - name: Compile
         run: python -m compileall -q bidirectional_choice_benchmark.py learned_evolution_pi.py
+        working-directory: experiments/self_improving_v03
+      - name: Policy invariants
+        run: python -m pytest -q test_learned_evolution_pi.py
         working-directory: experiments/self_improving_v03
       - name: Frozen Pi four-state exam
         run: python bidirectional_choice_benchmark.py
