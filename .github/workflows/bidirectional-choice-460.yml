@@ -5,6 +5,8 @@ on:
     branches: [experiment/self-improving-v0.1]
     paths:
       - "experiments/self_improving_v03/bidirectional_choice_benchmark.py"
+      - "experiments/self_improving_v03/learned_evolution_pi.py"
+      - "experiments/self_improving_v03/test_learned_evolution_pi.py"
       - ".github/workflows/bidirectional-choice-460.yml"
 jobs:
   choice:
@@ -12,9 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
-        with: {python-version: "3.11"}
-      - name: Policy invariants\n        run: python -m pytest -q test_learned_evolution_pi.py\n        working-directory: experiments/self_improving_v03\n      - name: Compile
-        run: python -m compileall -q bidirectional_choice_benchmark.py
+        with:
+          python-version: "3.11"
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Policy invariants
+        run: python -m pytest -q test_learned_evolution_pi.py
+        working-directory: experiments/self_improving_v03
+      - name: Compile
+        run: python -m compileall -q bidirectional_choice_benchmark.py learned_evolution_pi.py
         working-directory: experiments/self_improving_v03
       - name: Frozen Pi four-state exam
         run: python bidirectional_choice_benchmark.py
