@@ -2,7 +2,7 @@
 """460 benchmark v2: frozen Pi chooses operations; Frontier-v3 geometry defines ex-post optimality."""
 from __future__ import annotations
 import json,math,random
-from learned_evolution_pi import LearnedEvolutionPi
+from counterfactual_evolution_pi import CounterfactualEvolutionPi
 from pathlib import Path
 OPS=("create","modify","combine","freeze","prune","restore","noop")
 FEATURES=("capacity_gap","plasticity","redundancy","load","archive_relevance","frontier_pressure","interference")
@@ -40,12 +40,11 @@ def oracle(z):
  if best<.025:return "noop"
  return max(vals,key=vals.get)
 def train_pi():
- # Separate experience stream: broad functional states, all operations evaluated by the frozen Frontier-v3-aligned outcome model.
- # Training never sees scenario names, test seeds, or oracle labels.
- pi=LearnedEvolutionPi(k=48,temperature=.035,exploration=.04);rng=random.Random(460031)
+ # Separate paired counterfactual experience: every state evaluates every operation under identical conditions.
+ pi=CounterfactualEvolutionPi(k=36,temperature=.025,exploration=.025);rng=random.Random(460031)
  for _ in range(2400):
   z=tuple(rng.random() for _ in FEATURES)
-  for op in OPS:pi.observe(z,op,pareto_gain(z,op))
+  pi.observe_counterfactual(z,{op:pareto_gain(z,op) for op in OPS})
  pi.fit()
  return pi.frozen()
 def wilson(k,n,z=1.96):
@@ -59,6 +58,6 @@ def run(seeds=range(100)):
    best=oracle(z);choice=pi.choose(z,rng);hits+=choice==best;counts[choice]+=1;oracle_counts[best]+=1
   rate=hits/len(seeds);lo,hi=wilson(hits,len(seeds));ok=rate>=.60 and lo>.50;passed &= ok
   rows[name]={"n":len(seeds),"optimal_choice_rate":rate,"ci95":[lo,hi],"choice_counts":counts,"oracle_counts":oracle_counts,"passed":ok}
- out={"schema":"symcore.bidirectional-choice.v2","oracle":"frontier-v3-aligned","policy":"learned-operation-specific-context-geometry","training_states":2400,"threshold":.60,"ci95_lower_required":.50,"seeds_per_state":len(seeds),"states":rows,"passed":bool(passed)}
+ out={"schema":"symcore.bidirectional-choice.v2","oracle":"frontier-v3-aligned","policy":"counterfactual-advantage-regret","training_states":2400,"threshold":.60,"ci95_lower_required":.50,"seeds_per_state":len(seeds),"states":rows,"passed":bool(passed)}
  Path("artifacts").mkdir(exist_ok=True);Path("artifacts/bidirectional_choice_report.json").write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2));return out
 if __name__=="__main__":run()
