@@ -46,7 +46,8 @@ def train_pi():
  for _ in range(2400):
   z=tuple(rng.random() for _ in FEATURES)
   for op in OPS:pi.observe(z,op,pareto_gain(z,op))
- pi.fit()\n return pi.frozen()
+ pi.fit()
+ return pi.frozen()
 def wilson(k,n,z=1.96):
  p=k/n;d=1+z*z/n;c=(p+z*z/(2*n))/d;h=z*math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return c-h,c+h
 def run(seeds=range(100)):
