@@ -27,16 +27,14 @@ class SymcoreOnline:
   return err,(len(self.experts) if learn else 0)
 def slope(xs,ys):
  xm=statistics.fmean(xs);ym=statistics.fmean(ys);return sum((x-xm)*(y-ym) for x,y in zip(xs,ys))/sum((x-xm)**2 for x in xs)
-def block_bootstrap_slope(rows,key,seed=44004,B=3000):
- rng=random.Random(seed);blocks=[rows[i:i+BLOCK//1024 or 1] for i in range(len(rows))]
- vals=[]
+def bootstrap_checkpoint_slope(rows,key,seed=44004,B=3000):
+ rng=random.Random(seed);n=len(rows);L=3;starts=list(range(0,n-L+1));vals=[]
  for _ in range(B):
   sample=[]
-  while len(sample)<len(rows):sample.extend(rng.choice(blocks))
-  sample=sample[:len(rows)];sample=sorted(sample,key=lambda x:x["E"])
-  # duplicates in E can make denominator zero only in pathological resamples
-  try:vals.append(slope([x["E"] for x in sample],[x[key] for x in sample]))
-  except ZeroDivisionError:pass
+  while len(sample)<n:
+   s=rng.choice(starts);sample.extend(rows[s:s+L])
+  sample=sample[:n]
+  vals.append(slope([rows[i]["E"] for i in range(n)],[sample[i][key] for i in range(n)]))
  vals.sort();return [vals[int(.025*(len(vals)-1))],vals[int(.975*(len(vals)-1))]]
 def run():
  path=Path("data/hour.csv");ensure(path)
@@ -59,7 +57,7 @@ def run():
     check.append({"E":t,"A":A,"F":F,"C_new":Cnew,"control_mae":c,"live_mae":l,"frozen_mae":fr})
  if len(check)<MIN_CHECKPOINTS:raise RuntimeError("insufficient checkpoints")
  xs=[x["E"] for x in check];da=slope(xs,[x["A"] for x in check]);dc=slope(xs,[x["C_new"] for x in check])
- cia=block_bootstrap_slope(check,"A");cic=block_bootstrap_slope(check,"C_new",44005)
+ cia=bootstrap_checkpoint_slope(check,"A");cic=bootstrap_checkpoint_slope(check,"C_new",44005)
  rate=sum(x["F"]>0 for x in check)/len(check)
  out={"schema":"symcore.phase4.real-host.v1","dataset":DATASET,"rows":len(ec),"external_data":True,
  "freeze_at":FREEZE_AT,"eval_start":EVAL_START,"checkpoints":check,
