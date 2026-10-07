@@ -1,0 +1,34 @@
+name: evolutionary-frontier-v3
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/capability_frontier.py"
+      - "experiments/self_improving_v03/frontier_tournament.py"
+      - "experiments/self_improving_v03/test_evolutionary_frontier.py"
+      - "experiments/self_improving_v03/test_frontier_tournament.py"
+      - ".github/workflows/evolutionary-frontier-v3.yml"
+jobs:
+  frontier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Compile
+        run: python -m compileall -q .
+        working-directory: experiments/self_improving_v03
+      - name: Mathematical invariants
+        run: pytest -q test_evolutionary_frontier.py test_frontier_tournament.py
+        working-directory: experiments/self_improving_v03
+      - name: Five-axis tournament
+        run: python frontier_tournament.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: evolutionary-frontier-v3
+          path: experiments/self_improving_v03/artifacts/frontier_report.json

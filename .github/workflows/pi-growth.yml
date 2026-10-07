@@ -1,0 +1,26 @@
+name: pi-growth-evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/operator_policy.py"
+      - "experiments/self_improving_v03/pi_growth_benchmark.py"
+      - ".github/workflows/pi-growth.yml"
+jobs:
+  pi-growth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Compile
+        run: python -m compileall -q .
+        working-directory: experiments/self_improving_v03
+      - name: Adaptive Pi vs online-from-scratch
+        run: python pi_growth_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
+        with:
+          name: pi-growth-evidence
+          path: experiments/self_improving_v03/artifacts/pi_adaptive_report.json

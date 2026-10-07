@@ -1,0 +1,43 @@
+name: metro-phase4b-evidence-v2
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/METRO_PHASE4B_PREREGISTRATION.py
+      - experiments/self_improving_v03/metro_real_host.py
+      - experiments/self_improving_v03/metro_phase4b.py
+      - experiments/self_improving_v03/test_metro_phase4b.py
+      - experiments/self_improving_v03/real_cost_meter.py
+      - .github/workflows/metro-phase4b-evidence-v2.yml
+  workflow_dispatch:
+jobs:
+  metro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install pytest ucimlrepo pandas
+      - name: Compile frozen experiment
+        working-directory: experiments/self_improving_v03
+        run: |
+          python -m compileall -q METRO_PHASE4B_PREREGISTRATION.py
+          python -m compileall -q metro_real_host.py
+          python -m compileall -q metro_phase4b.py
+          python -m compileall -q real_cost_meter.py
+      - name: Verify frozen preregistration
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_metro_phase4b.py
+      - name: Run independent external Metro evidence
+        working-directory: experiments/self_improving_v03
+        run: python metro_phase4b.py
+      - name: Upload evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: metro-phase4b-evidence-v2
+          path: experiments/self_improving_v03/artifacts/metro_phase4b_report.json

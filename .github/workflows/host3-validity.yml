@@ -1,0 +1,22 @@
+name: host3-validity
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/host3_validity.py"
+      - ".github/workflows/host3-validity.yml"
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python experiment_runner.py host3-validity python host3_validity.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: host3-validity
+          path: experiments/self_improving_v03/artifacts/

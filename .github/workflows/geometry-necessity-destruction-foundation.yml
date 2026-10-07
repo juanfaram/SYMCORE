@@ -1,0 +1,27 @@
+name: geometry-necessity-destruction-foundation
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/necessity_destroy_geometry.py
+      - experiments/self_improving_v03/vlearn_full_geometry_collector.py
+      - experiments/self_improving_v03/GEOMETRY_PRUNING_CONTRACT.py
+      - experiments/self_improving_v03/test_geometry_pruning.py
+      - .github/workflows/geometry-necessity-destruction-foundation.yml
+  workflow_dispatch:
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - name: Compile
+        working-directory: experiments/self_improving_v03
+        run: python -m compileall -q necessity_destroy_geometry.py vlearn_full_geometry_collector.py GEOMETRY_PRUNING_CONTRACT.py
+      - name: Destruction invariants
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_geometry_pruning.py

@@ -1,0 +1,12 @@
+# Host 3 — frozen preregistration v2
+- Paradigm: non-stationary sequential decision/control.
+- Gap observable to Pi: **drift/stable only**, from a causal residual change detector. Hidden regime labels are forbidden.
+- Pi_0.5: online-only OperatorPolicy.
+- Pi_2: identical online budget plus historical prior.
+- Pi selects adaptation operators (fast/slow/reset); it does not select the reward-maximizing arm directly.
+- Six preregistered history strengths: 0.10, 0.25, 0.50, 1, 2, 4.
+- 200 fixed seeds; unseen randomized regime boundaries.
+- Primary endpoint: regret(Pi_0.5)-regret(Pi_2), CI95 lower > 0.
+- Safety endpoint: risk_delta CI95 upper <= 0.
+- PASS: both endpoints in >=3/6 strengths.
+- No tuning after results.

@@ -1,0 +1,37 @@
+name: beijing-phase4c-evidence
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/BEIJING_PHASE4C_PREREGISTRATION.py
+      - experiments/self_improving_v03/beijing_real_host.py
+      - experiments/self_improving_v03/beijing_phase4c.py
+      - experiments/self_improving_v03/test_beijing_phase4c.py
+      - .github/workflows/beijing-phase4c-evidence.yml
+  workflow_dispatch:
+jobs:
+  beijing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest ucimlrepo pandas
+      - name: Compile frozen experiment
+        working-directory: experiments/self_improving_v03
+        run: python -m compileall -q BEIJING_PHASE4C_PREREGISTRATION.py beijing_real_host.py beijing_phase4c.py real_cost_meter.py
+      - name: Frozen preregistration invariants
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_beijing_phase4c.py
+      - name: Third independent external real-host replication
+        working-directory: experiments/self_improving_v03
+        run: python beijing_phase4c.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: beijing-phase4c-evidence
+          path: experiments/self_improving_v03/artifacts/beijing_phase4c_report.json

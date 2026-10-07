@@ -1,0 +1,22 @@
+name: episode-R-evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/episode_R.py"
+      - ".github/workflows/episode-R.yml"
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python experiment_runner.py episode-R python episode_R.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: episode-R-evidence
+          path: experiments/self_improving_v03/artifacts/

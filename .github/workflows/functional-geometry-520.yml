@@ -1,0 +1,31 @@
+name: functional-geometry-520
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/functional_geometry.py"
+      - "experiments/self_improving_v03/test_functional_geometry.py"
+      - "experiments/self_improving_v03/functional_geometry_benchmark.py"
+      - ".github/workflows/functional-geometry-520.yml"
+jobs:
+  geometry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python -m pip install pytest
+      - name: Compile
+        run: python -m compileall -q functional_geometry.py functional_geometry_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Geometry invariants
+        run: python -m pytest -q test_functional_geometry.py
+        working-directory: experiments/self_improving_v03
+      - name: Cross-host transfer
+        run: python functional_geometry_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
+        with:
+          name: functional-geometry-520
+          path: experiments/self_improving_v03/artifacts/functional_geometry_report.json

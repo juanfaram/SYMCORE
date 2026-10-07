@@ -1,0 +1,39 @@
+name: pi-learn-context-loho
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/PI_LEARN_CONTEXT_CONTRACT.py
+      - experiments/self_improving_v03/learning_state.py
+      - experiments/self_improving_v03/vlearn_context_collector.py
+      - experiments/self_improving_v03/pi_learn_context_loho.py
+      - experiments/self_improving_v03/pi_learn_value.py
+      - experiments/self_improving_v03/test_pi_learn_context_loho.py
+      - .github/workflows/pi-learn-context-loho.yml
+  workflow_dispatch:
+jobs:
+  loho:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest ucimlrepo pandas
+      - name: Compile
+        working-directory: experiments/self_improving_v03
+        run: python -m compileall -q PI_LEARN_CONTEXT_CONTRACT.py learning_state.py vlearn_context_collector.py pi_learn_context_loho.py pi_learn_value.py
+      - name: Frozen paired contract
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_pi_learn_context_loho.py
+      - name: Contextual versus context-free LOHO
+        working-directory: experiments/self_improving_v03
+        run: python pi_learn_context_loho.py
+      - name: Upload paired evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: pi-learn-context-loho
+          path: experiments/self_improving_v03/artifacts/pi_learn_context_loho.json

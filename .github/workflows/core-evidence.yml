@@ -1,0 +1,33 @@
+name: core-evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/contextual_router_benchmark.py"
+      - "experiments/self_improving_v03/real_risk_benchmark.py"
+      - "experiments/self_improving_v03/context_router.py"
+      - "experiments/self_improving_v03/risk_contract.py"
+      - ".github/workflows/core-evidence.yml"
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Compile evidence boundary
+        run: python -m py_compile contextual_router_benchmark.py real_risk_benchmark.py context_router.py risk_contract.py
+        working-directory: experiments/self_improving_v03
+      - name: Contextual tabular router
+        run: python experiment_runner.py contextual-router python contextual_router_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Real-stream risk envelope
+        run: python experiment_runner.py real-risk python real_risk_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: core-evidence
+          path: experiments/self_improving_v03/artifacts/

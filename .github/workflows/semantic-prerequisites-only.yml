@@ -1,0 +1,27 @@
+name: semantic-prerequisites-only
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/acquisition_state.py"
+      - "experiments/self_improving_v03/semantic_transfer_benchmark.py"
+      - "experiments/self_improving_v03/host3_bandit.py"
+      - "experiments/self_improving_v03/semantic_prerequisites.py"
+      - ".github/workflows/semantic-prerequisites-only.yml"
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Prerequisites only
+        run: python experiment_runner.py semantic-prerequisites python semantic_prerequisites.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: semantic-prerequisites
+          path: experiments/self_improving_v03/artifacts/

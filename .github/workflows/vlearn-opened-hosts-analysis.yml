@@ -1,0 +1,37 @@
+name: vlearn-opened-hosts-analysis
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/VLEARN_PREREGISTRATION.py
+      - experiments/self_improving_v03/vlearn_surface.py
+      - experiments/self_improving_v03/vlearn_opened_hosts.py
+      - experiments/self_improving_v03/test_vlearn_surface.py
+      - .github/workflows/vlearn-opened-hosts-analysis.yml
+  workflow_dispatch:
+jobs:
+  vlearn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest ucimlrepo pandas
+      - name: Compile
+        working-directory: experiments/self_improving_v03
+        run: python -m compileall -q VLEARN_PREREGISTRATION.py vlearn_surface.py vlearn_opened_hosts.py
+      - name: Causal semantics invariants
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_vlearn_surface.py
+      - name: Map causal value-of-learning surface
+        working-directory: experiments/self_improving_v03
+        run: python vlearn_opened_hosts.py
+      - name: Upload exploratory evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: vlearn-opened-hosts-analysis
+          path: experiments/self_improving_v03/artifacts/vlearn_opened_hosts_report.json

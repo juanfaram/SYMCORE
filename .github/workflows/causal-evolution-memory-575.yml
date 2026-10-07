@@ -1,0 +1,31 @@
+name: causal-evolution-memory-575
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/causal_evolution_memory.py"
+      - "experiments/self_improving_v03/causal_evolution_memory_benchmark.py"
+      - "experiments/self_improving_v03/test_causal_evolution_memory.py"
+      - ".github/workflows/causal-evolution-memory-575.yml"
+jobs:
+  memory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python -m pip install pytest
+      - name: Compile
+        run: python -m compileall -q causal_evolution_memory.py causal_evolution_memory_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - name: Causal-memory invariants
+        run: python -m pytest -q test_causal_evolution_memory.py
+        working-directory: experiments/self_improving_v03
+      - name: Held-out prediction and decision
+        run: python causal_evolution_memory_benchmark.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
+        with:
+          name: causal-evolution-memory-575
+          path: experiments/self_improving_v03/artifacts/causal_evolution_memory_report.json

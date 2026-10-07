@@ -1,0 +1,24 @@
+name: selective-R-diagnosis
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "experiments/self_improving_v03/R_variance_diagnosis.py"
+      - ".github/workflows/selective-R-diagnosis.yml"
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Compile
+        run: python -m compileall -q .
+        working-directory: experiments/self_improving_v03
+      - name: Diagnose R variance
+        run: python R_variance_diagnosis.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
+        with:
+          name: selective-R-diagnosis
+          path: experiments/self_improving_v03/artifacts/R_variance_diagnosis.json

@@ -1,0 +1,23 @@
+name: joint-risk-value
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/self-improving-v0.1]
+    paths:
+      - "experiments/self_improving_v03/joint_selective_risk.py"
+      - "experiments/self_improving_v03/intervention_controller.py"
+      - ".github/workflows/joint-risk-value.yml"
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python experiment_runner.py joint-risk-value python joint_selective_risk.py
+        working-directory: experiments/self_improving_v03
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: joint-risk-value
+          path: experiments/self_improving_v03/artifacts/

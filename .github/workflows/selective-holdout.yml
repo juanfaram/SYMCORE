@@ -1,0 +1,26 @@
+name: selective-holdout-evidence
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "experiments/self_improving_v03/selective_holdout.py"
+      - "experiments/self_improving_v03/intervention_controller.py"
+      - "experiments/self_improving_v03/real_host_control.py"
+      - ".github/workflows/selective-holdout.yml"
+jobs:
+  holdout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - name: Compile
+        run: python -m compileall -q .
+        working-directory: experiments/self_improving_v03
+      - name: Frozen temporal holdout
+        run: python selective_holdout.py
+        working-directory: experiments/self_improving_v03
+      - uses: actions/upload-artifact@v5
+        with:
+          name: selective-holdout-evidence
+          path: experiments/self_improving_v03/artifacts/selective_holdout_report.json
