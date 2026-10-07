@@ -1,0 +1,37 @@
+name: survivor-factorial-audit
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/SURVIVOR_FACTORIAL_CONTRACT.py
+      - experiments/self_improving_v03/survivor_factorial.py
+      - experiments/self_improving_v03/survivor_factorial_run.py
+      - experiments/self_improving_v03/test_survivor_factorial.py
+      - .github/workflows/survivor-factorial-audit.yml
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest ucimlrepo pandas
+      - name: Compile
+        working-directory: experiments/self_improving_v03
+        run: python -m compileall -q SURVIVOR_FACTORIAL_CONTRACT.py survivor_factorial.py survivor_factorial_run.py
+      - name: Frozen factorial space
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_survivor_factorial.py
+      - name: Exhaustive causal survivor audit
+        working-directory: experiments/self_improving_v03
+        run: python survivor_factorial_run.py
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: survivor-factorial-audit
+          path: experiments/self_improving_v03/artifacts/survivor_factorial.json
