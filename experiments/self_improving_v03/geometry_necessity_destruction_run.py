@@ -26,6 +26,7 @@ class BikeLearner:
 def numeric_signals(r):
  out={}
  for k,v in r.items():
+  if str(k).startswith("__"):continue
   try:out[k]=float(v)
   except (TypeError,ValueError):pass
  return out
