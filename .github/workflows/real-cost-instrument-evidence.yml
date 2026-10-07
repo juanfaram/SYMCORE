@@ -1,0 +1,25 @@
+name: real-cost-instrument-evidence
+on:
+  push:
+    branches:
+      - experiment/self-improving-v0.1
+    paths:
+      - experiments/self_improving_v03/real_cost_meter.py
+      - experiments/self_improving_v03/test_real_cost_meter.py
+      - .github/workflows/real-cost-instrument-evidence.yml
+  workflow_dispatch:
+jobs:
+  cost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - name: Compile
+        working-directory: experiments/self_improving_v03
+        run: python -m compileall -q real_cost_meter.py
+      - name: Direct-cost invariants
+        working-directory: experiments/self_improving_v03
+        run: python -m pytest -q test_real_cost_meter.py
