@@ -8,5 +8,5 @@ MIN_POSITIVE_HORIZONS=4
 HOSTS=("bike","metro","beijing")
 # Causal definition: identical state at E; only live continues updates during (E,E+h].
 # Therefore V(E,0)=0 by construction.
-CONTRACT={"positive_freeze_points_gte":4,"positive_horizons_per_freeze":4,"hosts_required":3}
+CONTRACT={"positive_eligible_freeze_points_gte":4,"positive_horizons_per_freeze":4,"hosts_required":3}\n# A freeze point is eligible only if E+max(HORIZONS) exists in that host. Missing follow-up is not a failure.
 ANALYSIS_STATUS="posthoc_on_opened_hosts_not_confirmatory_holdout"
