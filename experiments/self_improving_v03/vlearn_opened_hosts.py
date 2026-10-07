@@ -27,7 +27,7 @@ def run():
  bike=evaluate_surface(bike_rows(),BikeLearner,lambda r:r,lambda r:float(r["cnt"]))
  metro=fetch_ucirepo(id=492);mr=[dict(metro.data.features.iloc[i],__target=float(metro.data.targets.iloc[i,0])) for i in range(len(metro.data.features))]
  ms=evaluate_surface(mr,MetroSymcore,metro_norm,lambda r:r["__target"])
- bj=fetch_ucirepo(id=381);br=[dict(bj.data.features.iloc[i],__target=bj.data.targets.iloc[i,0]) for i in range(len(bj.data.features)]
+ bj=fetch_ucirepo(id=381);br=[dict(bj.data.features.iloc[i],__target=bj.data.targets.iloc[i,0]) for i in range(len(bj.data.features))]
  bs=evaluate_surface(br,BeijingSymcore,bj_norm,lambda r:r["__target"])
  surfaces={"bike":bike,"metro":ms,"beijing":bs};summary={k:summarize(v) for k,v in surfaces.items()}
  out={"schema":"symcore.vlearn.opened-hosts.v1","confirmatory":False,"analysis_status":"posthoc_on_opened_hosts","surfaces":surfaces,"summary":summary,"cl2_descriptive_all_hosts_pass":all(x["passed"] for x in summary.values())}
