@@ -14,8 +14,8 @@ def collect_full_geometry(rows,make_learner,normalize,target_fn,signal_fn):
   if E in FREEZE_POINTS:
    pending[E]={"z":geom.vector(),"live":copy.deepcopy(learner),"frozen":copy.deepcopy(learner),
                "errs":{h:[[],[]] for h in HORIZONS}}
-  ll,_=learner.step(r,y,True)
-  geom.observe(signal_fn(r,ll))
+  learner.step(r,y,True)
+  geom.observe(signal_fn(r))
   for e,p in list(pending.items()):
    age=E-e
    if age<=0 or age>maxh:continue
