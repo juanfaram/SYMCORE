@@ -8,7 +8,9 @@ class FunctionalGeometry:
  def observe(self,signals):
   # Signal names are local adapter metadata only; geometry never exposes them.
   for k,v in signals.items():
-   q=self.channels.setdefault(k,deque(maxlen=self.window));q.append(float(v))
+   x=float(v)
+   if not math.isfinite(x):continue
+   q=self.channels.setdefault(k,deque(maxlen=self.window));q.append(x)
  def _signature(self,x):
   if not x:return (0.,0.,0.,0.,0.)
   n=len(x);m=statistics.fmean(x);sd=statistics.pstdev(x) or 1e-9
